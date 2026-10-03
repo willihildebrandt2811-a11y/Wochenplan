@@ -1,0 +1,20 @@
+Willi's Rezepte Sammlung - Paket für die Android-App (APK)
+
+Inhalt: index.html (die App), manifest.webmanifest, sw.js, icon-192.png, icon-512.png
+
+So kommst du zur APK-Datei:
+
+1. Ordner entpacken und auf eine kostenlose Webseite hochladen
+   (z. B. Netlify Drop oder GitHub Pages). Du bekommst eine https-Adresse.
+2. Auf pwabuilder.com die Adresse einfügen, "Start" tippen,
+   dann "Package for Stores" > "Android" > Schlüssel (Signing) automatisch erzeugen lassen > "Generate".
+3. Aus der heruntergeladenen ZIP-Datei die .apk aufs Handy kopieren und installieren
+   (dafür "Installation aus unbekannten Quellen" erlauben).
+   Die .aab-Datei ist nur für den Play Store. Den mitgelieferten Schlüssel gut aufbewahren.
+
+Hinweis: Rezepte, Notizen und Sterne aus dem bisherigen Browser werden nicht in die App übernommen.
+
+NEU: Teilen-Ziel
+Nach der Installation (APK oder "Zum Startbildschirm") erscheint "Rezepte" im Teilen-Menü von Android.
+Screenshot in der Galerie oder in Instagram teilen -> "Rezepte" wählen -> der Import öffnet sich und liest das Bild.
+Geteilte Links werden ins Linkfeld übernommen. Nach dem Update ggf. einmal neu installieren (PWABuilder neu erzeugen).
