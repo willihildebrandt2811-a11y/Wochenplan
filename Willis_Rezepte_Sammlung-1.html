@@ -3,10 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#2E6B4F">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>Willi's Rezepte Sammlung</title>
 <style>
 :root{--bg:#F2F5F1;--surf:#FFFFFF;--ink:#1B2420;--mut:#5E6B64;--acc:#2E6B4F;--onacc:#FFFFFF;--line:#D9E0DA;--warn:#C23B25;--pat:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140' fill='none' stroke='rgb%2846%2C107%2C79%29' stroke-opacity='.14' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='30' cy='34' r='13'/%3E%3Cpath d='M22 22q8 -8 16 0M30 22v-8'/%3E%3Cpath d='M92 24c16 -5 26 7 23 23c-16 5 -26 -7 -23 -23zM92 24l17 17'/%3E%3Cellipse cx='36' cy='104' rx='15' ry='10' transform='rotate%28-25 36 104%29'/%3E%3Cpath d='M47 97l6 -4'/%3E%3Cpath d='M98 88l18 24l-28 -4z'/%3E%3Cpath d='M98 88l-4 -10M98 88l6 -9'/%3E%3Ccircle cx='70' cy='66' r='2'/%3E%3Ccircle cx='12' cy='74' r='2'/%3E%3Ccircle cx='128' cy='70' r='2'/%3E%3Ccircle cx='66' cy='128' r='2'/%3E%3C/svg%3E");--glow:radial-gradient(circle at 8% 0%,rgba(46,107,79,.18),transparent 45%),radial-gradient(circle at 100% 28%,rgba(210,69,47,.10),transparent 42%);
@@ -1658,7 +1654,6 @@ async function handleShare(){
     else if (m) $('#ims').textContent = 'Link übernommen. Tippe auf „Instagram öffnen“ und mache einen Screenshot der Beschreibung, dann teile ihn mit dieser App.';
   } catch(e){}
 }
-if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
 if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 else status('Die PDF-Bibliothek konnte nicht geladen werden. Bitte lade die Seite neu.');
 init();
