@@ -265,6 +265,7 @@ details.cgp{border:0;border-radius:var(--r);box-shadow:var(--sh)}
 .it{border-bottom-color:var(--line)}
 #pg{border-radius:14px;box-shadow:var(--sh)}
 .stars .st{font-size:1.25rem}
+.expbox{margin-top:22px;padding-top:14px;border-top:1px solid var(--acc2)}
 #imtabs{display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--acc2);margin:0 0 16px}
 #imtabs button{flex:1;border:0;background:transparent;border-radius:12px;padding:10px 4px;font-weight:700;font-size:.86rem;color:var(--mut)}
 #imtabs button.on{background:var(--surf);color:var(--acc);box-shadow:var(--sh)}
@@ -490,6 +491,13 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
       <button class="btn pri wideb" id="imgo" style="margin-top:14px">Rezept erstellen</button>
     </div>
     <p id="ims" class="note" role="status" style="margin:10px 0"></p>
+    <div class="expbox">
+      <div class="cap">Exportieren</div>
+      <p class="note" style="margin:0 0 10px">Alle Rezepte als eine PDF-Datei speichern, eine Seite pro Rezept. Diese Datei kannst du oben unter „PDF“ wieder importieren.</p>
+      <button class="btn wideb" id="expgo">Alle Rezepte als PDF exportieren</button>
+      <p id="exs" class="note" role="status" style="margin:8px 0 10px"></p>
+      <div id="exres" hidden></div>
+    </div>
   </div>
 </div>
 
@@ -1603,6 +1611,54 @@ function prepCanvas(file){
   });
 }
 $('#imsf').onchange = e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) ocrFiles(files); };
+/* Export: alle Rezeptseiten als eine PDF (eine Seite pro Rezept), ohne Bibliothek */
+async function exportPdf(){
+  const st = $('#exs'), btn = $('#expgo');
+  if (!items.length){ st.textContent = 'Es gibt noch keine Rezepte.'; return; }
+  btn.disabled = true;
+  try {
+    const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
+    const push = b => { if (typeof b === 'string') b = enc.encode(b); parts.push(b); len += b.length; };
+    const n = items.length, W = 595.28;
+    push('%PDF-1.4\n%\u00e2\u00e3\u00cf\u00d3\n');
+    offs[1] = len; push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+    const kids = []; for (let i = 0; i < n; i++) kids.push((6 + 3 * i) + ' 0 R');
+    offs[2] = len; push('2 0 obj\n<< /Type /Pages /Count ' + n + ' /Kids [' + kids.join(' ') + '] >>\nendobj\n');
+    offs[3] = len; push('3 0 obj\n<< /Title (Willis Rezepte Sammlung) /Producer (Willis Rezepte Sammlung) >>\nendobj\n');
+    for (let i = 0; i < n; i++){
+      st.textContent = 'Seite ' + (i + 1) + ' von ' + n + ' …';
+      const img = await new Promise((res, rej) => { const m = new Image(); m.onload = () => res(m); m.onerror = rej; m.src = items[i].img; });
+      const w = img.naturalWidth, h = img.naturalHeight, c = document.createElement('canvas');
+      c.width = w; c.height = h; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0);
+      const jpg = new Uint8Array(await (await new Promise(r => c.toBlob(r, 'image/jpeg', .92))).arrayBuffer());
+      const H = +(W * h / w).toFixed(2), io = 4 + 3 * i, co = io + 1, po = io + 2, cs = 'q ' + W + ' 0 0 ' + H + ' 0 0 cm /Im0 Do Q';
+      offs[io] = len; push(io + ' 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + w + ' /Height ' + h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpg.length + ' >>\nstream\n'); push(jpg); push('\nendstream\nendobj\n');
+      offs[co] = len; push(co + ' 0 obj\n<< /Length ' + cs.length + ' >>\nstream\n' + cs + '\nendstream\nendobj\n');
+      offs[po] = len; push(po + ' 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /XObject << /Im0 ' + io + ' 0 R >> >> /Contents ' + co + ' 0 R >>\nendobj\n');
+    }
+    const total = 4 + 3 * n, xr = len; let t = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+    for (let k = 1; k < total; k++) t += String(offs[k]).padStart(10, '0') + ' 00000 n \n';
+    push(t + 'trailer\n<< /Size ' + total + ' /Root 1 0 R /Info 3 0 R >>\nstartxref\n' + xr + '\n%%EOF');
+    const name = 'Willis-Rezepte-' + new Date().toISOString().slice(0, 10) + '.pdf';
+    const blob = new Blob(parts, {type: 'application/pdf'}), file = new File([blob], name, {type: 'application/pdf'});
+    const box = $('#exres'); box.innerHTML = ''; box.hidden = false;
+    let canShare = false; try { canShare = !!(navigator.canShare && navigator.canShare({files: [file]})); } catch(e){}
+    if (canShare){
+      const b1 = document.createElement('button'); b1.className = 'btn pri wideb'; b1.textContent = 'PDF speichern / teilen';
+      b1.onclick = async () => { try { await navigator.share({files: [file], title: 'Willis Rezepte'}); } catch(e){} };
+      box.append(b1);
+    }
+    const b2 = document.createElement('button'); b2.className = 'btn wideb'; b2.style.marginTop = canShare ? '8px' : '0'; b2.textContent = 'PDF herunterladen';
+    b2.onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); };
+    const b3 = document.createElement('button'); b3.className = 'btn wideb'; b3.style.marginTop = '8px'; b3.textContent = 'PDF öffnen';
+    b3.onclick = () => { window.open(URL.createObjectURL(blob), '_blank'); };
+    box.append(b2, b3);
+    st.textContent = n + ' Rezepte sind fertig.' + (canShare ? ' Tippe auf „PDF speichern / teilen“ und wähle z. B. „Dateien“, Google Drive oder WhatsApp.' : '');
+  } catch(err){ st.textContent = 'Der Export hat nicht geklappt. Bitte versuche es noch einmal.'; }
+  finally { btn.disabled = false; }
+}
+$('#expgo').onclick = exportPdf;
+
 async function ocrFiles(files){
   const st = $('#ims'), btn = $('#imsc'); btn.style.opacity = '.5';
   let worker = null;
