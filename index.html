@@ -221,6 +221,9 @@ main{padding:calc(18px + env(safe-area-inset-top,0px)) 16px 120px}
 h1,h2,h3,.sheet h3,.grp,.day{font-family:inherit}
 .top2{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 14px}
 .top2 h1{margin:0;font-size:1.75rem;font-weight:800;letter-spacing:-.03em;line-height:1.08}
+.top2 h1 .pen{font-size:.8rem;font-weight:400;color:var(--mut);opacity:.55;margin-left:6px;vertical-align:middle}
+.top2 h1 [contenteditable]{outline:0;border-radius:6px}
+.top2 h1 [contenteditable]:focus{background:var(--acc2);box-shadow:0 0 0 3px var(--acc2)}
 .top2 h1 small{display:block;font-size:.8rem;font-weight:600;letter-spacing:.02em;color:var(--acc);margin-bottom:4px;text-transform:uppercase}
 .addpill{flex:none;min-height:40px;padding:0 16px;border-radius:999px;background:var(--acc);color:var(--onacc);border:0;font-weight:700;font-size:.9rem;box-shadow:0 6px 16px rgba(30,123,84,.3);display:inline-flex;align-items:center;justify-content:center}
 .bar{display:none}
@@ -369,7 +372,7 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
 </head>
 <body>
 <main>
-  <div class="top2"><h1><small>Wochenplan mit</small>Willi's Rezepte Sammlung</h1>
+  <div class="top2"><h1><small id="ht1" contenteditable="plaintext-only" spellcheck="false" enterkeyhint="done">Wochenplan mit</small><span id="ht2" contenteditable="plaintext-only" spellcheck="false" enterkeyhint="done">Willi's Rezepte Sammlung</span><span class="pen" aria-hidden="true">✎</span></h1>
 </div>
   <div class="bar">
     <button class="btn tool" id="imp">Import</button>
@@ -1611,6 +1614,22 @@ function prepCanvas(file){
   });
 }
 $('#imsf').onchange = e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) ocrFiles(files); };
+/* Titelzeilen der Startseite sind editierbar */
+(function(){
+  const K = {ht1: ['htitle1', 'Wochenplan mit'], ht2: ['htitle2', "Willi's Rezepte Sammlung"]};
+  Object.keys(K).forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    try { const v = localStorage.getItem(K[id][0]); if (v) el.textContent = v; } catch(e){}
+    el.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); el.blur(); } });
+    el.addEventListener('blur', () => {
+      let v = el.textContent.replace(/\s+/g, ' ').trim();
+      if (!v) v = K[id][1];
+      el.textContent = v;
+      try { if (v === K[id][1]) localStorage.removeItem(K[id][0]); else localStorage.setItem(K[id][0], v); } catch(e){}
+    });
+  });
+})();
+
 /* Export: alle Rezeptseiten als eine PDF (eine Seite pro Rezept), ohne Bibliothek */
 async function exportPdf(){
   const st = $('#exs'), btn = $('#expgo');
