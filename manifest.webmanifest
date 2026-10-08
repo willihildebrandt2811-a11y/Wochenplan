@@ -1,13 +1,13 @@
 {
- "name": "Willi's Rezepte Sammlung",
- "short_name": "Rezepte",
+ "name": "Willicious",
+ "short_name": "Willicious",
  "description": "Wochenplan, Rezepte und Einkaufsliste",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
- "background_color": "#F2F5F1",
- "theme_color": "#2E6B4F",
+ "background_color": "#FBF9F2",
+ "theme_color": "#2D6A3E",
  "lang": "de",
  "icons": [
   {
