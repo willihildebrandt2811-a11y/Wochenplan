@@ -20,15 +20,16 @@
 
 <section class="sec" id="anleitung"><h2 class="center">Gratis-Anleitung per E-Mail</h2><p class="lead center">Trag dich ein und erhalte die Kurz-Anleitung als PDF mit dem Link zur App.</p>
 <!-- HIER die Formular-Adresse von Brevo einfügen (action="…sibforms.com/serve/…"). Siehe ANLEITUNG-EINRICHTUNG.txt -->
-<form class="signup" id="sf" method="POST" action="HIER-BREVO-FORMULAR-ADRESSE-EINFUEGEN">
+<form class="signup" id="sf" method="POST" action="https://e4b2fcf6.sibforms.com/serve/MUIFAGSYy9LHQmYi23fd0HwLsYnZKi1pC1pqMA3ACqarXhr3r_a5SeTuRAyAiLVvnKuqzTG_qbYFERIwwCvaNGd0Z9_4zy96MlUqmte4VzyPautLWTRiZt745Yqqcb3exGGwTy7kbvtvZZlk84WmmGVm1ZAecN_VjHA_9XXTK3oPSdtFkvVPMC3pFL7OG7C_E2soGnDPZyWXfne2jg==">
 <label for="vn">Vorname</label><input type="text" id="vn" name="FIRSTNAME" autocomplete="given-name" required maxlength="60">
+<label for="nn">Nachname</label><input type="text" id="nn" name="LASTNAME" autocomplete="family-name" required maxlength="60">
 <label for="em">E-Mail-Adresse</label><input type="email" id="em" name="EMAIL" autocomplete="email" required maxlength="120">
 <input class="hp" type="text" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true">
 <input type="hidden" name="locale" value="de">
-<label class="consent"><input type="checkbox" id="ok" required><span>Ich möchte die Anleitung und gelegentliche Neuigkeiten zu Willicious per E-Mail erhalten. Ich kann mich jederzeit abmelden. Die Daten verarbeitet Brevo in meinem Auftrag, mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label>
+<label class="consent"><input type="checkbox" id="ok" name="OPT_IN" value="1" required><span>Ich möchte die Anleitung und gelegentliche Neuigkeiten zu Willicious per E-Mail erhalten. Ich kann mich jederzeit abmelden. Die Daten verarbeitet Brevo in meinem Auftrag, mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label>
 <button class="btn" type="submit" style="width:100%">Anleitung anfordern</button><p id="fmsg" role="status"></p></form></section>
 <footer><span>© Willicious · aus Willis Küche</span><span><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span></footer></div><script>
 document.getElementById('sf').addEventListener('submit',function(e){
-  if(/HIER-BREVO/.test(this.action)){e.preventDefault();document.getElementById('fmsg').textContent='Die Anmeldung ist noch nicht eingerichtet (Formular-Adresse von Brevo fehlt).';}
+  if(this.action.indexOf('HIER-BREVO')>-1){e.preventDefault();document.getElementById('fmsg').textContent='Die Anmeldung ist noch nicht eingerichtet (Formular-Adresse von Brevo fehlt).';}
 });
 </script></body></html>
