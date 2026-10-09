@@ -1,4 +1,4 @@
-Willi's Rezepte Sammlung - Paket für die Android-App (APK)
+Willicious - Paket für die Android-App (APK)
 
 Inhalt: index.html (die App), manifest.webmanifest, sw.js, icon-192.png, icon-512.png
 

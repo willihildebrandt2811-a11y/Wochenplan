@@ -47,9 +47,9 @@ h2{font-family:Georgia,"Times New Roman",serif;font-size:1.3rem;margin:22px 0 10
 .up input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;font-size:0}
 body.drag main{outline:3px dashed var(--acc);outline-offset:-6px}
 button.slot{font:inherit;color:var(--mut);background:var(--surf);cursor:pointer;width:100%}
-#pk,#sl,#al,#ni,#gp,#im{position:fixed;inset:0;z-index:6;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-#pk[hidden],#sl[hidden],#al[hidden],#ni[hidden],#gp[hidden],#im[hidden]{display:none}
-#pk header,#sl header,#al header,#ni header,#gp header,#im header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--surf);border-bottom:1px solid var(--line)}
+#pk,#sl,#al,#ni,#gp,#im,#ar,#wv{position:fixed;inset:0;z-index:6;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#pk[hidden],#sl[hidden],#al[hidden],#ni[hidden],#gp[hidden],#im[hidden],#ar[hidden],#wv[hidden]{display:none}
+#pk header,#sl header,#al header,#ni header,#gp header,#im header,#ar header,#wv header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--surf);border-bottom:1px solid var(--line)}
 #pkf{padding:10px 12px 0;background:var(--bg)}#pkf select.in{width:100%;margin-bottom:8px}#pkl2{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}#pkl2 button{min-width:28px;height:28px;padding:0 7px;border-radius:9px;border:1px solid var(--line);background:var(--surf);color:var(--ink);font:inherit;font-weight:700;font-size:.78rem;line-height:1}#pkl2 button.on{background:var(--acc);border-color:var(--acc);color:#fff}#pkl2 button:disabled{opacity:.3}#pkn{margin:6px 2px 0}
 #pkl{flex:1;overflow:auto;padding:12px;display:grid;gap:10px;align-content:start}
 .row{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surf);border-radius:10px;padding:8px;width:100%}
@@ -102,7 +102,7 @@ button.slot{font:inherit;color:var(--mut);background:var(--surf);cursor:pointer;
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 8px}
 .chip{border:1px solid var(--line);background:var(--surf);border-radius:999px;padding:3px 10px;min-height:28px;font-size:.78rem;line-height:1.2}
 .chip.on{background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:600}
-#ni,#im{z-index:8}
+#ni,#im,#ar,#wv{z-index:8}
 #nic,#imc{flex:1;overflow:auto;padding:16px;width:100%;max-width:720px;margin:0 auto}
 #nic label,#imc label{font-weight:700}
 .fld{display:block;width:100%;border:1px solid var(--line);background:var(--surf);color:var(--ink);border-radius:8px;padding:10px;font:inherit;line-height:1.4;margin:6px 0 16px}
@@ -193,7 +193,7 @@ a.btn{display:inline-flex;align-items:center;text-decoration:none;color:var(--in
 @media print{
   html,body{background:#fff !important;background-image:none !important;color:#000 !important;min-height:0}
   :root{padding:0}
-  #im,#srcrow,#pd,#lb,.bar,#st,#gnew,#gp,#ni,#ab,#cats,#al,#sl,#pk,#v,.wide .side{display:none !important}
+  #im,#srcrow,#pd,#lb,.bar,#st,#gnew,#gp,#ni,#ab,#cats,#al,#sl,#pk,#ar,#wv,.wkact,#v,.wide .side{display:none !important}
   main{max-width:none;padding:0}
   h1{font-size:22pt;color:#000;margin:0 0 2mm}
   h2{font-size:14pt;color:#000;margin:0 0 2mm}
@@ -274,7 +274,7 @@ h2{font-size:1.25rem;font-weight:800;letter-spacing:-.02em;margin:18px 0 8px}
 .chip.on{border-color:transparent !important}
 details.cgp{border:0;border-radius:var(--r);box-shadow:var(--sh)}
 .empty{border-radius:var(--r);border:1.5px dashed var(--line)}
-#pk header,#sl header,#al header,#ni header,#gp header,#im header,#v header{background:color-mix(in srgb,var(--surf) 86%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:10px 14px}
+#pk header,#sl header,#al header,#ni header,#gp header,#im header,#ar header,#wv header,#v header{background:color-mix(in srgb,var(--surf) 86%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:10px 14px}
 #v footer,#sl footer{background:color-mix(in srgb,var(--surf) 90%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 #pk header h3,#sl header h3,#al header h3,#gp header h3,#im header h3,#ni header h3,#alt,#pkt{font-weight:800;letter-spacing:-.02em}
 .row{border:0;border-radius:var(--r);box-shadow:var(--sh)}
@@ -415,7 +415,7 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
 .top2 .brand .sub .pen{font-size:.7rem}
 .brand .sub{display:flex;flex-direction:column;gap:1px;line-height:1.25}.top2 .brand .sub #ht2{font-weight:600;font-size:.82rem}.top2 .brand .sub .pen{position:absolute;right:0;bottom:0;display:none}
 
-#v,#al,#gp,#im,#ni,#sl,#pk{background-color:var(--bg);background-image:radial-gradient(130% 55% at 50% -8%,var(--hero),transparent 62%);background-repeat:no-repeat}
+#v,#al,#gp,#im,#ni,#sl,#pk,#ar,#wv{background-color:var(--bg);background-image:radial-gradient(130% 55% at 50% -8%,var(--hero),transparent 62%);background-repeat:no-repeat}
 :root{--hero:#DCEAD0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hero:#173024}}
 :root[data-theme="dark"]{--hero:#173024}
@@ -426,6 +426,32 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bstrip .wml{display:none}:root:not([data-theme="light"]) .bstrip .wmd{display:block}}
 :root[data-theme="dark"] .bstrip .wml{display:none}:root[data-theme="dark"] .bstrip .wmd{display:block}
 @media print{.bstrip{display:none !important}}
+
+#arc{flex:1;overflow:auto;padding:12px 16px 24px;width:100%;max-width:720px;margin:0 auto}
+.arform .fld{margin:6px 0 10px}
+.arbtns{display:flex;gap:8px;margin-bottom:14px}
+.arrow{display:flex;align-items:center;gap:8px;margin:8px 0}
+.arrow .artap{flex:1;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surf);color:var(--ink);font:inherit;font-weight:600;min-height:48px;cursor:pointer}
+.arrow .artap.on{background:var(--acc2);border-color:var(--acc);color:var(--acc)}
+.arrow .btn{flex:none}
+#sl header #sla{margin-left:auto}
+
+.wkact{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+#wvc{flex:1;overflow:auto;padding:12px 16px 24px;width:100%;max-width:720px;margin:0 auto}
+.wvcard{background:var(--surf);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:0 0 12px}
+.wvcard h3{margin:0;font-size:1.05rem}
+.wvcard .dt{color:var(--mut);font-size:.82rem;margin:2px 0 8px}
+.wvcard details{margin:0 0 10px}.wvcard summary{cursor:pointer;font-weight:600;color:var(--acc)}
+.wvcard ul{margin:8px 0 0;padding-left:0;list-style:none;font-size:.92rem;line-height:1.5}
+.wvcard li b{display:inline-block;width:2.4em}
+.wvcard li.gone{color:var(--mut);text-decoration:line-through}
+.wvbtns{display:flex;gap:8px;flex-wrap:wrap}
+#wvm{min-height:1.2em;margin:0 0 10px;font-weight:600;color:var(--acc)}
+.wkact .btn{flex:1 1 auto;min-height:40px;padding:0 12px;font-size:.88rem;font-weight:700;white-space:nowrap;justify-content:center;background:var(--acc2);color:var(--acc);border:1px solid var(--acc);border-radius:14px}
+.wkact{gap:6px;margin:0 0 8px}
+.wkact .btn{min-height:32px;padding:0 10px;font-size:.78rem;font-weight:700;border-radius:12px}
+.wvbtns .btn{min-height:32px;padding:0 12px;font-size:.8rem}
+#wcook{flex:1 1 100%;background:var(--acc);color:var(--onacc);border-color:var(--acc);min-height:38px;font-size:.88rem}
 </style>
 </head>
 <body>
@@ -439,6 +465,7 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
   </div>
   <p id="st" role="status"></p>
   <div class="wkhead"><h2 id="wkt">Eine Woche</h2><span id="wkdots"><i class="on"></i><i></i><i></i><i></i></span></div>
+  <div class="wkact"><button class="btn tool" id="wcook">Was soll ich kochen?</button><button class="btn tool" id="wsv">Woche speichern</button><button class="btn tool" id="wlst">Gespeicherte Wochen</button></div>
   <div id="wkwrap"><div class="wk"><div id="pins"></div></div><div class="wk"><div id="pins2"></div></div><div class="wk"><div id="pins3"></div></div><div class="wk"><div id="pins4"></div></div></div>
   <button class="btn pri wideb" id="ab">Alle Rezepte</button>
   <div id="cats"></div>
@@ -637,9 +664,36 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
   <header>
     <button class="btn" id="slx">Zurück</button>
     <strong>Einkaufsliste</strong>
+    <button class="btn pri" id="sla">Artikel zufügen</button>
   </header>
   <div id="sll"></div>
   <footer><button class="btn pri" id="cp">Liste kopieren</button><button class="btn" id="slp">Drucken</button><span id="cps" role="status"></span></footer>
+</div>
+
+<div id="ar" hidden role="dialog" aria-modal="true" aria-label="Eigene Artikel">
+  <header><button class="btn" id="arx">Zurück</button><strong>Eigene Artikel</strong><span style="width:70px"></span></header>
+  <div id="arc">
+    <p class="note" style="margin-top:0">Schreibe Artikel auf, die du öfter brauchst. Tippe einen Artikel an, dann steht er auf deiner Einkaufsliste. Nochmal antippen nimmt ihn wieder herunter.</p>
+    <div class="arform">
+      <input id="arn" class="fld" maxlength="60" placeholder="Artikel, z. B. Toilettenpapier" aria-label="Artikel" enterkeyhint="done">
+      <input id="arq" class="fld" maxlength="30" placeholder="Menge (optional), z. B. 2 Pck." aria-label="Menge">
+      <div class="arbtns"><button class="btn pri" id="arsave" type="button">Speichern</button><button class="btn" id="arcancel" type="button" hidden>Abbrechen</button></div>
+    </div>
+    <div id="arl"></div>
+    <button class="btn" id="arclr" type="button" hidden>Alle von der Liste nehmen</button>
+  </div>
+</div>
+
+<div id="wv" hidden role="dialog" aria-modal="true" aria-label="Gespeicherte Wochen">
+  <header><button class="btn" id="wvx">Zurück</button><strong>Gespeicherte Wochen</strong><span style="width:70px"></span></header>
+  <div id="wvc">
+    <label for="wvn" style="font-weight:700">Aktuelle Woche speichern</label>
+    <input id="wvn" class="fld" maxlength="50" placeholder="Name, z. B. Woche vom 12.10." enterkeyhint="done">
+    <div class="arbtns"><button class="btn pri" id="wvs" type="button">Woche speichern</button></div>
+    <p id="wvm" role="status"></p>
+    <p class="note" id="wvh" style="margin-top:0"></p>
+    <div id="wvl"></div>
+  </div>
 </div>
 
 <div id="pk" hidden role="dialog" aria-modal="true" aria-label="Rezept auswählen">
@@ -701,7 +755,7 @@ async function init(){
   seedCats();
   initGroups();
   await seedRecipes2();
-  await seedRecipes3(); await seedRecipes4(); await seedRecipes5(); await seedRecipes6(); await seedRecipes7();
+  await seedRecipes3(); await seedRecipes4(); await seedRecipes5(); await seedRecipes6(); await seedRecipes7(); await seedExtra1();
   sortItems(); draw();
 }
 
@@ -1342,7 +1396,7 @@ function listFor(entries, scope, box){
     const k = two[id] ? 2 : 1;
     if (it.idea){ (it.lines || []).forEach(l => { const key = l + '|'; if (!m.has(key)) m.set(key, {n: l, u: '', c: 6, a: null}); }); return; }
     const r = seedIdx(it);
-    if (r < 0){ miss.push(it.name); return; }
+    if (r < 0 && !it.ing){ miss.push(it.name); return; }
     (it.ing || ING[r]).forEach(([n, a, u, c]) => {
       const key = n + '|' + u, e = m.get(key) || {n, u, c, a: null};
       if (a !== null) e.a = (e.a || 0) + a * k;
@@ -1378,6 +1432,7 @@ function listFor(entries, scope, box){
     });
   });
   if (miss.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Für diese Rezepte sind keine Zutaten hinterlegt: ' + miss.join(', '); box.append(p); }
+  { const o = ownSec(box, scope); text += o.text; rows.push(...o.rows); }
   slData[scope] = {text, rows, ents: entries};
 }
 function slSet(k){ const d = slData[k]; if (!d) return; listText = d.text; listRows = d.rows; slEnts = d.ents; }
@@ -1385,7 +1440,7 @@ function renderList(){
   const box = $('#sll'); box.textContent = ''; slData = {}; listText = ''; listRows = []; slEnts = []; slTitle = '';
   const ent = allPlan(), wis = [...new Set(ent.map(e => e.wi))];
   box.classList.toggle('multi', wis.length > 1);
-  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten.</p>'; return; }
+  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten. Eigene Artikel kannst du jederzeit über „Artikel zufügen“ aufschreiben.</p>'; const o = ownSec(box, 'all'); slData.all = {text: o.text, rows: o.rows, ents: []}; slSet('all'); return; }
   if (wis.length < 2){ listFor(ent, 'all', box); slSet('all'); return; }
   const sc = wis.map(w => ({k: 'w' + w, t: WNAME[w], ents: ent.filter(e => e.wi === w)}));
   sc.push({k: 'all', t: 'Alle Wochen', ents: ent});
@@ -1881,12 +1936,12 @@ $('#nix').onclick = () => { editId = null; dupMode = false; $('#ni').hidden = tr
 let editPre = '';
 $('#ed').onclick = () => {
   const it = items[cur]; if (!it) return;
-  const r = seedIdx(it), sd = !it.idea && r >= 0;
+  const r = seedIdx(it), sd = !it.idea && (r >= 0 || !!it.ing);
   editId = it.id; dupMode = false; $('#nit').textContent = 'Korrektur';
   const lines = sd ? (it.lines || (ingOf(it) || []).map(lineOf)) : (it.lines || []);
   editPre = JSON.stringify(lines);
   $('#nin').value = it.name; $('#nil').value = it.src || ''; $('#niz').value = lines.join('\n'); $('#nip').value = it.steps != null ? it.steps : (sd && STEPS[SEED[r].name]) || '';
-  $('#nseed').hidden = !sd; $('#nrst').hidden = !(sd && it.edited);
+  $('#nseed').hidden = !sd; $('#nrst').hidden = !(sd && it.edited && r >= 0);
   newCats = new Set(catsOf(it.id)); renderNewCats(); $('#ni').hidden = false; $('#nin').focus();
 };
 $('#dup').onclick = () => {
@@ -1909,7 +1964,7 @@ $('#nis').onclick = async () => {
     const o = items.find(x => x.id === editId);
     if (!o) return;
     if (name.toLowerCase() === o.name.toLowerCase()){ alert('Bitte einen neuen Titel eingeben, damit das Duplikat gespeichert werden kann.'); $('#nin').focus(); return; }
-    const sv = $('#nil').value.trim(), r = seedIdx(o), sd = !o.idea && r >= 0;
+    const sv = $('#nil').value.trim(), r = seedIdx(o), sd = !o.idea && (r >= 0 || !!o.ing);
     const it = {name, lines, steps, img: ideaImg(name, lines, steps, srcLabel(okUrl(sv) ? sv : ''))};
     if (okUrl(sv)) it.src = sv;
     if (sd){ it.seedIdx = r; it.edited = true; it.ing = lines.map(l => parseLine(l, ingOf(o))); } else it.idea = true;
@@ -1922,7 +1977,7 @@ $('#nis').onclick = async () => {
   }
   if (editId !== null){
     const it = items.find(x => x.id === editId);
-    if (it && !it.idea && seedIdx(it) >= 0){
+    if (it && !it.idea && (seedIdx(it) >= 0 || it.ing)){
       const lc = true;
       it.seedIdx = seedIdx(it); it.name = name; it.lines = lines; it.steps = steps;
       const old = ingOf(it); if (lc || it.edited || steps) it.ing = lines.map(l => parseLine(l, old));
@@ -2075,7 +2130,7 @@ function buildPL(){
   const names = slEnts.map(e => { const it = items.find(x => x.id === e.id); return it ? (multiWk() ? (e.wi + 1) + '. ' : '') + DAYS[e.s].slice(0, 2) + ': ' + it.name : null; }).filter(Boolean);
   const sub = document.createElement('p'); sub.className = 'plsub'; sub.textContent = names.join('  |  '); pl.append(sub);
   const cols = document.createElement('div'); cols.className = 'plcols';
-  CAT.forEach((cn, ci) => {
+  [...CAT, 'Eigene Artikel'].forEach((cn, ci) => {
     const rows = listRows.filter(r => r.c === ci && !done.has(r.key));
     if (!rows.length) return;
     const g = document.createElement('div'); g.className = 'plg';
@@ -2592,13 +2647,179 @@ handleShare();
 /* Logo-Leiste oben auf allen Seiten */
 (function(){
   const f = document.querySelector('.brand .face'), a = document.querySelector('.brand .wml'), b = document.querySelector('.brand .wmd'); if (!f || !a || !b) return;
-  ['v', 'al', 'gp', 'im', 'ni', 'sl', 'pk'].forEach(id => {
+  ['v', 'al', 'gp', 'im', 'ni', 'sl', 'pk', 'ar', 'wv'].forEach(id => {
     const el = document.getElementById(id); if (!el) return;
     const d = document.createElement('div'); d.className = 'bstrip'; d.setAttribute('aria-hidden', 'true');
     [[f, 'face'], [a, 'wm wml'], [b, 'wm wmd']].forEach(([src, c]) => { const i = document.createElement('img'); i.className = c; i.alt = ''; i.src = src.src; d.append(i); });
     el.insertBefore(d, el.firstChild);
   });
 })();
+
+/* Eigene Artikel für die Einkaufsliste */
+let myArt = [], myOn = [], arEdit = null;
+try { myArt = JSON.parse(localStorage.getItem('myart') || '[]') || []; myOn = JSON.parse(localStorage.getItem('myon') || '[]') || []; } catch(e){}
+function saveArt(){ try { localStorage.setItem('myart', JSON.stringify(myArt)); localStorage.setItem('myon', JSON.stringify(myOn)); } catch(e){} }
+function ownSec(box, scope){
+  const out = {text: '', rows: []}, on = myArt.filter(a => myOn.includes(a.id));
+  if (!on.length) return out;
+  const h3 = document.createElement('h3'); h3.className = 'grp'; h3.textContent = 'Eigene Artikel'; box.append(h3);
+  on.forEach(a => {
+    const key = 'art|' + a.id + '|' + scope, amt = a.q || '';
+    const l = document.createElement('label'); l.className = 'it' + (done.has(key) ? ' done' : '');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = done.has(key);
+    cb.onchange = () => { cb.checked ? done.add(key) : done.delete(key); l.classList.toggle('done', cb.checked); };
+    const n = document.createElement('span'); n.className = 'n'; n.textContent = a.n;
+    const q = document.createElement('span'); q.className = 'a'; q.textContent = amt;
+    l.append(cb, n, q); box.append(l);
+    out.rows.push({c: 7, n: a.n, a: amt, key}); out.text += (amt ? a.n + ' ' + amt : a.n) + '\n';
+  });
+  return out;
+}
+function artChanged(){ saveArt(); renderArt(); if (!$('#sl').hidden) renderList(); }
+function artReset(){ arEdit = null; $('#arn').value = ''; $('#arq').value = ''; $('#arsave').textContent = 'Speichern'; $('#arcancel').hidden = true; }
+function renderArt(){
+  const l = $('#arl'); l.textContent = '';
+  if (!myArt.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Noch keine eigenen Artikel. Schreibe oben deinen ersten Artikel auf.'; l.append(p); }
+  myArt.slice().sort((a, b) => a.n.localeCompare(b.n, 'de')).forEach(a => {
+    const row = document.createElement('div'); row.className = 'arrow'; const on = myOn.includes(a.id);
+    const t = document.createElement('button'); t.type = 'button'; t.className = 'artap' + (on ? ' on' : ''); t.setAttribute('aria-pressed', String(on));
+    t.textContent = (on ? '✓ ' : '') + a.n + (a.q ? ' · ' + a.q : '');
+    t.onclick = () => { if (on) myOn = myOn.filter(x => x !== a.id); else myOn.push(a.id); artChanged(); };
+    const e = document.createElement('button'); e.type = 'button'; e.className = 'btn sm'; e.textContent = 'Ändern';
+    e.onclick = () => { arEdit = a.id; $('#arn').value = a.n; $('#arq').value = a.q || ''; $('#arsave').textContent = 'Änderung speichern'; $('#arcancel').hidden = false; $('#arn').focus(); };
+    const d = document.createElement('button'); d.type = 'button'; d.className = 'btn del sm'; d.textContent = 'Löschen';
+    d.onclick = () => { if (!confirm('Artikel „' + a.n + '“ löschen?')) return; myArt = myArt.filter(x => x.id !== a.id); myOn = myOn.filter(x => x !== a.id); if (arEdit === a.id) artReset(); artChanged(); };
+    row.append(t, e, d); l.append(row);
+  });
+  $('#arclr').hidden = !myOn.length;
+}
+$('#sla').onclick = () => { artReset(); renderArt(); $('#ar').hidden = false; };
+$('#arx').onclick = () => { $('#ar').hidden = true; };
+$('#arcancel').onclick = artReset;
+$('#arsave').onclick = () => {
+  const n = $('#arn').value.trim(), q = $('#arq').value.trim();
+  if (!n){ $('#arn').focus(); return; }
+  if (arEdit !== null){ const a = myArt.find(x => x.id === arEdit); if (a){ a.n = n; a.q = q; } }
+  else myArt.push({id: Date.now() + Math.floor(Math.random() * 1000), n, q});
+  artReset(); artChanged();
+};
+$('#arn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arsave').click(); } });
+$('#arclr').onclick = () => { myOn = []; artChanged(); };
+
+/* Wochen speichern und wieder übernehmen */
+let savedW = [];
+try { savedW = JSON.parse(localStorage.getItem('savedweeks') || '[]') || []; } catch(e){}
+function saveSW(){ try { localStorage.setItem('savedweeks', JSON.stringify(savedW)); } catch(e){} }
+const wvDate = t => new Date(t).toLocaleDateString('de-DE');
+function wvName(id){ const it = items.find(x => x.id === id); return it ? it.name : null; }
+function wvRender(){
+  const l = $('#wvl'); l.textContent = '';
+  $('#wvh').textContent = 'Mit „Übernehmen“ wird die gespeicherte Woche in die Woche eingetragen, die du gerade auf der Startseite offen hast (' + WNAME[wk] + '). Die Einkaufsliste passt sich automatisch an.';
+  if (!savedW.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Noch keine gespeicherte Woche. Plane eine Woche und tippe oben auf „Woche speichern“.'; l.append(p); return; }
+  savedW.slice().sort((a, b) => b.t - a.t).forEach(sw => {
+    const c = document.createElement('div'); c.className = 'wvcard';
+    const h = document.createElement('h3'); h.textContent = sw.name; const dt = document.createElement('div'); dt.className = 'dt'; dt.textContent = 'gespeichert am ' + wvDate(sw.t);
+    const det = document.createElement('details'); const sm = document.createElement('summary'); sm.textContent = 'Plan ansehen'; const ul = document.createElement('ul');
+    sw.days.forEach((d, s) => {
+      const names = []; if (d.id) names.push({n: d.n, ok: !!wvName(d.id), rest: d.c}); (d.x || []).forEach(x => names.push({n: x.n, ok: !!wvName(x.id)}));
+      const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = DAYS[s].slice(0, 2); li.append(b);
+      li.append(names.length ? names.map(x => (x.n || '?') + (x.rest ? ' (Rest)' : '') + (x.ok ? '' : ' – gelöscht')).join(' + ') : '–'); ul.append(li);
+    });
+    if (sw.on && sw.on.length){ const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = '＋'; li.append(b); li.append('Eigene Artikel: ' + sw.on.map(a => a.n + (a.q ? ' (' + a.q + ')' : '')).join(', ')); ul.append(li); }
+    det.append(sm, ul);
+    const bt = document.createElement('div'); bt.className = 'wvbtns';
+    const ap = document.createElement('button'); ap.type = 'button'; ap.className = 'btn pri sm'; ap.textContent = 'Übernehmen';
+    ap.onclick = () => wvApply(sw);
+    const rn = document.createElement('button'); rn.type = 'button'; rn.className = 'btn sm'; rn.textContent = 'Name ändern';
+    rn.onclick = () => {
+      const inp = document.createElement('input'); inp.className = 'fld'; inp.maxLength = 50; inp.value = sw.name; inp.setAttribute('aria-label', 'Neuer Name'); inp.style.margin = '0 0 8px';
+      const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'btn pri sm'; ok.textContent = 'Speichern';
+      const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'btn sm'; ab.textContent = 'Abbrechen';
+      const save = () => { const v = inp.value.trim(); if (v){ sw.name = v.slice(0, 50); saveSW(); } wvRender(); };
+      ok.onclick = save; ab.onclick = wvRender; inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); save(); } });
+      const row = document.createElement('div'); row.className = 'wvbtns'; row.style.marginBottom = '8px'; row.append(ok, ab);
+      h.replaceWith(inp); inp.after(row); inp.focus(); inp.select(); rn.disabled = true;
+    };
+    const dl = document.createElement('button'); dl.type = 'button'; dl.className = 'btn del sm'; dl.textContent = 'Löschen';
+    dl.onclick = () => { if (!confirm('Gespeicherte Woche „' + sw.name + '“ löschen?')) return; savedW = savedW.filter(x => x !== sw); saveSW(); wvRender(); };
+    bt.append(ap, rn, dl); c.append(h, dt, det, bt); l.append(c);
+  });
+}
+function wvOpen(focus){
+  $('#wvn').value = 'Woche vom ' + wvDate(Date.now()); $('#wvm').textContent = ''; wvRender(); $('#wv').hidden = false;
+  if (focus){ $('#wvn').focus(); $('#wvn').select(); }
+}
+function wvApply(sw){
+  if (weeks[wk].some(Boolean) && !confirm('Die Woche „' + WNAME[wk] + '“ wird durch „' + sw.name + '“ ersetzt. Weiter?')) return;
+  let gone = 0;
+  for (let s = 0; s < 7; s++){
+    const d = sw.days[s] || {}, ok = d.id && items.some(x => x.id === d.id);
+    if (d.id && !ok) gone++;
+    weeks[wk][s] = ok ? d.id : null; conts[wk][s] = !!(ok && d.c);
+    delete extras[exK(wk, s)];
+    const ex = ok ? (d.x || []).filter(x => items.some(i => i.id === x.id)).map(x => x.id) : []; gone += (d.x || []).length - ex.length;
+    if (ex.length) extras[exK(wk, s)] = ex;
+  }
+  (sw.on || []).forEach(a => { if (!myArt.some(x => x.id === a.id)) myArt.push({id: a.id, n: a.n, q: a.q || ''}); });
+  myOn = (sw.on || []).map(a => a.id);
+  savePins(); saveExtras(); saveArt(); status(''); draw();
+  if (!$('#sl').hidden) renderList();
+  $('#wv').hidden = true;
+  status('Woche „' + sw.name + '“ übernommen' + (gone ? ' (' + gone + ' gelöschte Rezepte übersprungen)' : '') + '. Die Einkaufsliste ist aktuell.');
+}
+$('#wsv').onclick = () => wvOpen(true);
+$('#wlst').onclick = () => wvOpen(false);
+$('#wvx').onclick = () => { $('#wv').hidden = true; };
+$('#wvs').onclick = () => {
+  const w = weeks[wk];
+  if (!w.some(Boolean)){ $('#wvm').textContent = 'Diese Woche ist noch leer. Plane zuerst Rezepte ein.'; return; }
+  const name = ($('#wvn').value.trim() || 'Woche vom ' + wvDate(Date.now())).slice(0, 50);
+  savedW.push({id: Date.now(), t: Date.now(), name,
+    days: w.map((id, s) => ({id: id || null, n: id ? wvName(id) : null, c: !!conts[wk][s], x: id ? exOf(wk, s).map(i => ({id: i, n: wvName(i)})) : []})),
+    on: myArt.filter(a => myOn.includes(a.id)).map(a => ({id: a.id, n: a.n, q: a.q || ''}))});
+  saveSW(); $('#wvm').textContent = '✓ Gespeichert als „' + name + '“.'; $('#wvn').value = 'Woche vom ' + wvDate(Date.now()); wvRender();
+};
+$('#wvn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#wvs').click(); } });
+
+/* Was soll ich kochen? Leere Tage mit Hauptgerichten füllen */
+function wcCook(){
+  const empty = []; for (let s = 0; s < 7; s++) if (!weeks[wk][s]) empty.push(s);
+  if (!empty.length){ status('Alle Tage dieser Woche sind schon belegt. Zum Neu-Würfeln einzelne Tage mit „Abwählen“ leeren.'); return; }
+  const hg = c => /haupt/i.test(String(catGroup[c] || ''));
+  const used = new Set(allPlan().map(e => e.id));
+  let pool = items.filter(it => !two[it.id] && catsOf(it.id).some(hg));
+  if (!pool.length){ status('Keine Hauptgerichte gefunden. Ordne Rezepten Kategorien aus der Gruppe „Haupt Gerichte“ zu.'); return; }
+  let fresh = pool.filter(it => !used.has(it.id));
+  const pick = []; 
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  fresh = shuffle(fresh.slice());
+  while (pick.length < empty.length && fresh.length) pick.push(fresh.pop());
+  const rest = shuffle(pool.filter(it => !pick.includes(it)));
+  while (pick.length < empty.length && rest.length) pick.push(rest.pop());
+  empty.forEach((s, i) => { if (pick[i]){ weeks[wk][s] = pick[i].id; conts[wk][s] = false; } });
+  savePins(); draw(); if (!$('#sl').hidden) renderList();
+  status('Vorschlag für ' + Math.min(empty.length, pick.length) + ' Tage eingetragen. Gefällt dir etwas nicht? Auf dem Tag „Abwählen“ tippen und nochmal „Was soll ich kochen?“ wählen.');
+}
+$('#wcook').onclick = wcCook;
+
+/* Einzelrezept: Tortellini in Schinken-Sahne-Sauce (Link-Import) */
+async function seedExtra1(){
+  try { if (localStorage.getItem('recx1') === '1') return; } catch(e){}
+  const name = 'Tortellini in Schinken-Sahne-Sauce';
+  if (!items.some(x => x.name.toLowerCase() === name.toLowerCase())){
+    const url = 'https://cookidoo.de/recipes/recipe/de-DE/r768237';
+    const ing = [['Parmesan', 150, 'g', 2], ['Butter', 45, 'g', 2], ['gekochter Schinken', 230, 'g', 1], ['Sahne', 600, 'g', 2], ['Tortellini (Kühlregal)', 1200, 'g', 2], ['Eigelb', 3, '', 2], ['Muskat', 4, 'Prise', 5], ['Pfeffer', 0.75, 'TL', 5], ['Salz', 0.5, 'TL', 5], ['Basilikum', null, '', 0]];
+    const lines = ['150 g Parmesan in Stücken', '45 g Butter in Stücken', '230 g gekochter Schinken in Streifen', '600 g Sahne', '1200 g Tortellini aus dem Kühlregal', '3 Eigelb', '3–4 Prisen Muskat', '¾ TL Pfeffer', '½ TL Salz, plus etwas mehr zum Kochen der Nudeln', 'Wasser zum Kochen der Nudeln', 'Basilikum zum Garnieren'];
+    const steps = ['1. Reichlich Salzwasser aufkochen und die Tortellini nach Packungsangabe garen.', '2. Währenddessen den Parmesan fein reiben und den Schinken in Streifen schneiden.', '3. Die Butter in einer großen Pfanne schmelzen und den Schinken kurz darin anbraten.', '4. Die Sahne zugeben, aufkochen und etwa 5 Minuten leicht köcheln lassen. Mit Salz, Pfeffer und Muskat würzen.', '5. Die Pfanne vom Herd nehmen und den Parmesan unterrühren, bis er geschmolzen ist. Die Eigelbe mit einer Kelle Soße verrühren und zügig unterrühren. Danach nicht mehr aufkochen.', '6. Die abgetropften Tortellini unter die Soße heben und mit Basilikum bestreut servieren.', 'Hinweis: Rezept für 6 Portionen, ca. 25 Minuten. Zutaten nach Cookidoo, die Zubereitung ist hier in eigenen Worten ergänzt (das Original ist nur mit Anmeldung sichtbar).'].join('\n');
+    const it = {name, img: ideaImg(name, lines, steps, 'Quelle: Cookidoo'), lines, steps, ing, edited: true, src: url};
+    it.id = db ? await tx('readwrite', s => s.add(it)) : Date.now() + items.length;
+    items.push(it);
+    const c = cats.find(x => x.toLowerCase() === 'nudel gerichte'); if (c){ catMap[it.id] = [c]; saveCats(); }
+    SERV[name] = 6;
+    sortItems();
+  }
+  try { localStorage.setItem('recx1', '1'); } catch(e){}
+}
 </script>
 </body>
 </html>
