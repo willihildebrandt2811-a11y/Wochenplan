@@ -1,0 +1,34 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Willicious – Wochenplan &amp; Rezepte</title><meta name="description" content="Plane deine Woche, finde Rezepte nach Zutaten und erstelle deine Einkaufsliste automatisch."><link rel="icon" href="icon-192.png"><link rel="stylesheet" href="style.css"></head><body><div class="wrap"><header class="top"><a class="brand" href="./"><img class="f" src="logo-gesicht.png" alt=""><img class="w" src="logo-schrift.png" alt="Willicious"></a><a class="btn" href="../">App öffnen</a></header>
+<section class="hero"><div class="kick">WOCHENPLAN &amp; REZEPTE</div><h1>Plane deine Woche.<br>Koche mit Freude.</h1><p>Willicious ist dein Rezeptbuch mit Wochenplan, Einkaufsliste und Kalorien. Direkt im Handy, ohne Anmeldung, auch offline.</p>
+<div class="cta"><a class="btn" href="../">App jetzt öffnen</a><a class="btn alt" href="#anleitung">Gratis-Anleitung per E-Mail</a></div></section>
+<div class="phones"><img src="app-suche.jpg" alt="Rezepte nach Zutaten suchen"><img src="app-plan.jpg" alt="Wochenplan"><img src="app-einkauf.jpg" alt="Einkaufsliste"></div>
+
+<section class="sec"><h2>Das kann die App</h2><p class="lead">Alles, was du für eine entspannte Kochwoche brauchst.</p>
+<div class="grid">
+<div class="card"><h3>Wochenplan für bis zu 4 Wochen</h3><p>Rezepte auf die Tage verteilen, auch mehrere pro Tag, und Reste auf mehrere Tage legen.</p></div>
+<div class="card"><h3>Was soll ich kochen?</h3><p>Ein Tipp, und freie Tage füllen sich mit Hauptgerichten. Schon Gewähltes bleibt.</p></div>
+<div class="card"><h3>Einkaufsliste automatisch</h3><p>Aus dem Plan entsteht die Liste, sortiert nach Abteilungen. Eigene Artikel gehen auch.</p></div>
+<div class="card"><h3>Rezepte nach Zutaten finden</h3><p>Zwei Zutaten nennen, passende Rezepte erscheinen. Dazu Kategorien und A–Z-Leiste.</p></div>
+<div class="card"><h3>Kalorien pro Portion</h3><p>Grobe Schätzung aus der Zutatenliste, mit eigenen Zutaten ergänzbar.</p></div>
+<div class="card"><h3>Eigene Rezepte</h3><p>Korrigieren, duplizieren, Link zu Instagram oder YouTube speichern, Wochen speichern und wieder übernehmen.</p></div>
+</div></section>
+
+<section class="sec" id="installieren"><h2>Als App aufs Handy</h2><p class="lead">Einmal installieren, dann wie jede andere App.</p>
+<div class="steps"><div class="card"><h3>Android (Chrome)</h3><ol><li>Seite in Chrome öffnen.</li><li>Menü (drei Punkte) antippen.</li><li>„App installieren“ oder „Zum Startbildschirm hinzufügen“.</li></ol></div>
+<div class="card"><h3>iPhone (Safari)</h3><ol><li>Seite in Safari öffnen.</li><li>Teilen-Symbol antippen.</li><li>„Zum Home-Bildschirm“, dann „Hinzufügen“.</li></ol></div></div>
+<p class="center" style="margin-top:16px"><a class="btn" href="../">Zur App</a></p></section>
+
+<section class="sec" id="anleitung"><h2 class="center">Gratis-Anleitung per E-Mail</h2><p class="lead center">Trag dich ein und erhalte die Kurz-Anleitung als PDF mit dem Link zur App.</p>
+<!-- HIER die Formular-Adresse von Brevo einfügen (action="…sibforms.com/serve/…"). Siehe ANLEITUNG-EINRICHTUNG.txt -->
+<form class="signup" id="sf" method="POST" action="HIER-BREVO-FORMULAR-ADRESSE-EINFUEGEN">
+<label for="vn">Vorname</label><input type="text" id="vn" name="FIRSTNAME" autocomplete="given-name" required maxlength="60">
+<label for="em">E-Mail-Adresse</label><input type="email" id="em" name="EMAIL" autocomplete="email" required maxlength="120">
+<input class="hp" type="text" name="email_address_check" value="" tabindex="-1" autocomplete="off" aria-hidden="true">
+<input type="hidden" name="locale" value="de">
+<label class="consent"><input type="checkbox" id="ok" required><span>Ich möchte die Anleitung und gelegentliche Neuigkeiten zu Willicious per E-Mail erhalten. Ich kann mich jederzeit abmelden. Die Daten verarbeitet Brevo in meinem Auftrag, mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</span></label>
+<button class="btn" type="submit" style="width:100%">Anleitung anfordern</button><p id="fmsg" role="status"></p></form></section>
+<footer><span>© Willicious · aus Willis Küche</span><span><a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a></span></footer></div><script>
+document.getElementById('sf').addEventListener('submit',function(e){
+  if(/HIER-BREVO/.test(this.action)){e.preventDefault();document.getElementById('fmsg').textContent='Die Anmeldung ist noch nicht eingerichtet (Formular-Adresse von Brevo fehlt).';}
+});
+</script></body></html>
