@@ -668,6 +668,12 @@ if(!ok()){
       <p id="exs" class="note" role="status" style="margin:8px 0 10px"></p>
       <div id="exres" hidden></div>
     <div class="expbox">
+      <div class="cap">App aktualisieren</div>
+      <p class="note" style="margin:0 0 10px">Holt die neueste Version der App und neue Rezepte von GitHub. Du musst die App dafür nicht neu installieren.</p>
+      <button class="btn pri wideb" id="updgo">Jetzt aktualisieren</button>
+      <p id="upds" class="note" role="status" style="margin:8px 0 0"></p>
+    </div>
+    <div class="expbox">
       <div class="cap">Rezepte austauschen</div>
       <p class="note" style="margin:0 0 10px">Speichert nur die Rezepte, die du selbst importiert oder angelegt hast (ohne Plan, Notizen und Sterne). Wer so eine Datei lädt, bekommt die Rezepte dazu. Was schon da ist, wird übersprungen. Für alle zum Mitnehmen: Datei bei GitHub als <b>rezepte.json</b> hochladen.</p>
       <button class="btn wideb" id="rzgo">Nur meine neuen Rezepte exportieren</button>
@@ -2731,14 +2737,15 @@ async function rzMerge(list, seen){
   return {add, skip};
 }
 async function rzAuto(){
-  if (!/^https?:/.test(location.protocol)) return;
-  const r = await fetch('rezepte.json?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) return;
-  const d = await r.json(); if (!rzValid(d)) return;
+  if (!/^https?:/.test(location.protocol)) return 0;
+  const r = await fetch('rezepte.json?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) return 0;
+  const d = await r.json(); if (!rzValid(d)) return 0;
   let seen = new Set(); try { seen = new Set(JSON.parse(localStorage.getItem('rzseen') || '[]')); } catch(e){}
   const fresh = d.items.filter(x => x && x.img && !seen.has(rzHash(x.img)));
-  if (!fresh.length) return;
-  await rzMerge(fresh, seen);
+  if (!fresh.length) return 0;
+  const m = await rzMerge(fresh, seen);
   try { localStorage.setItem('rzseen', JSON.stringify([...seen])); } catch(e){}
+  return m.add;
 }
 $('#rzgo').onclick = () => {
   const st = $('#rzs'), d = rzMake();
@@ -2856,7 +2863,38 @@ async function handleShare(){
     else if (m) $('#ims').textContent = 'Link übernommen. Tippe auf „Instagram öffnen“ und mache einen Screenshot der Beschreibung, dann teile ihn mit dieser App.';
   } catch(e){}
 }
-if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+let swManual = false;
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+  const had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(r => { r.update().catch(() => {}); }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!had || swManual || document.getElementById('updbar')) return;
+    const b = document.createElement('button'); b.id = 'updbar'; b.type = 'button'; b.textContent = 'Neue Version bereit. Tippe zum Aktualisieren.';
+    b.style.cssText = 'position:fixed;left:12px;right:12px;bottom:76px;z-index:8000;min-height:48px;border:0;border-radius:14px;background:var(--acc);color:var(--onacc);font:600 .95rem inherit;box-shadow:0 6px 20px rgba(0,0,0,.3)';
+    b.onclick = () => location.reload(); document.body.append(b);
+  });
+}
+$('#updgo').onclick = async () => {
+  const st = $('#upds'), btn = $('#updgo'); btn.disabled = true; st.textContent = 'Suche nach Updates …';
+  try {
+    if (!navigator.onLine){ st.textContent = 'Du bist offline. Bitte mit dem Internet verbinden.'; return; }
+    let n = 0; try { n = await rzAuto(); } catch(e){}
+    let appNew = false;
+    const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
+    if (reg){
+      swManual = true;
+      await reg.update();
+      if (reg.installing || reg.waiting){
+        appNew = true; st.textContent = 'Neue Version wird geladen …';
+        await new Promise(res => { navigator.serviceWorker.addEventListener('controllerchange', res, {once: true}); setTimeout(res, 10000); });
+      }
+    }
+    if (appNew){ st.textContent = 'Fertig. Die App startet neu …'; setTimeout(() => location.reload(), 600); return; }
+    swManual = false;
+    st.textContent = (n ? n + ' neue Rezepte geladen. ' : 'Keine neuen Rezepte. ') + 'Die App ist auf dem neuesten Stand.';
+  } catch(e){ st.textContent = 'Die Suche hat nicht geklappt. Bitte versuche es später noch einmal.'; }
+  finally { btn.disabled = false; }
+};
 if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 else status('Die PDF-Bibliothek konnte nicht geladen werden. Bitte lade die Seite neu.');
 init();
