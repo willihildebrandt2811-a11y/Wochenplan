@@ -1,4 +1,4 @@
-const V = 'willi-rezepte-v72';
+const V = 'willi-rezepte-v74';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => e.waitUntil(caches.open(V).then(c => Promise.all(SHELL.map(u => fetch(new Request(u, {cache: 'reload'})).then(r => { if (!r.ok) throw 0; return c.put(u, r); })))).then(() => self.skipWaiting())));
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k !== 'willi-share').map(k => caches.delete(k)))).then(() => self.clients.claim())));
