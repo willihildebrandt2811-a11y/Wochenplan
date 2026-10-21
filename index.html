@@ -153,7 +153,7 @@ details.cgp .chips{margin:0 0 10px}
 a.btn{display:inline-flex;align-items:center;text-decoration:none;color:var(--ink)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
 #sl header{flex-wrap:wrap}
-#sl footer{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surf);border-top:1px solid var(--line)}
+#sl footer,#ar footer{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surf);border-top:1px solid var(--line)}
 #al.selmode .card .pinbtn{display:none}
 #al.selmode .card.selc{outline:3px solid var(--acc);outline-offset:-3px}
 #al.selmode .card.selc::after{content:"✓";position:absolute;top:6px;left:6px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:2}
@@ -275,7 +275,7 @@ h2{font-size:1.25rem;font-weight:800;letter-spacing:-.02em;margin:18px 0 8px}
 details.cgp{border:0;border-radius:var(--r);box-shadow:var(--sh)}
 .empty{border-radius:var(--r);border:1.5px dashed var(--line)}
 #pk header,#sl header,#al header,#ni header,#gp header,#im header,#ar header,#wv header,#v header{background:color-mix(in srgb,var(--surf) 86%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:10px 14px}
-#v footer,#sl footer{background:color-mix(in srgb,var(--surf) 90%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+#v footer,#sl footer,#ar footer{background:color-mix(in srgb,var(--surf) 90%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
 #pk header h3,#sl header h3,#al header h3,#gp header h3,#im header h3,#ni header h3,#alt,#pkt{font-weight:800;letter-spacing:-.02em}
 .row{border:0;border-radius:var(--r);box-shadow:var(--sh)}
 .row img{border-radius:10px}
@@ -433,7 +433,22 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
 .arrow{display:flex;align-items:center;gap:8px;margin:8px 0}
 .arrow .artap{flex:1;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--surf);color:var(--ink);font:inherit;font-weight:600;min-height:48px;cursor:pointer}
 .arrow .artap.on{background:var(--acc2);border-color:var(--acc);color:var(--acc)}
+.rzd{margin:2px 0 6px;border-bottom:1px solid var(--line)}
+.rzd summary{cursor:pointer;font-size:.8rem;font-weight:700;color:var(--mut);padding:6px 0;list-style:none}
+.rzd summary::before{content:"▸ "}.rzd[open] summary::before{content:"▾ "}
+.rzd .it{font-size:.82rem;min-height:36px;padding:5px 0}.rzd .it input{width:18px;height:18px}
+#sla.sm{min-height:34px;padding:0 10px;font-size:.8rem}
+#ar header{padding:6px 10px}#ar header strong{font-size:.95rem}#ar header .btn{min-height:34px;font-size:.8rem;padding:0 10px}
+#arc{padding:8px 14px 16px}#ar .arform .fld{margin:4px 0 6px;min-height:38px;padding:6px 10px;font-size:.9rem}
+#ar .btn{min-height:34px;font-size:.8rem;padding:0 10px}
+#ar .arrow{margin:5px 0;gap:6px}#ar .arrow .artap{min-height:36px;padding:6px 10px;font-size:.88rem;border-radius:11px}
+#ar .arrow .ck{width:20px;height:20px}#ar .arrow .btn.sm{min-height:30px;font-size:.74rem;padding:0 8px}
+#ar h3.grp{font-size:.72rem;margin:10px 0 2px}
+#ar footer{padding:6px 10px;gap:8px}
 .arrow .btn{flex:none}
+.arrow .artap.dn{text-decoration:line-through;opacity:.55}
+.arrow .ck{width:26px;height:26px;flex:none;accent-color:var(--acc)}
+#arl h3.grp{margin:14px 0 4px}
 #sl header #sla{margin-left:auto}
 
 .wkact{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
@@ -750,7 +765,7 @@ if(!ok()){
   <header>
     <button class="btn" id="slx">Zurück</button>
     <strong>Einkaufsliste</strong>
-    <button class="btn pri" id="sla">Artikel zufügen</button>
+    <button class="btn pri sm" id="sla">Eigene Artikel</button>
   </header>
   <div id="sll"></div>
   <footer><button class="btn pri" id="cp">Liste kopieren</button><button class="btn" id="slp">Drucken</button><span id="cps" role="status"></span></footer>
@@ -759,15 +774,15 @@ if(!ok()){
 <div id="ar" hidden role="dialog" aria-modal="true" aria-label="Eigene Artikel">
   <header><button class="btn" id="arx">Zurück</button><strong>Eigene Artikel</strong><span style="width:70px"></span></header>
   <div id="arc">
-    <p class="note" style="margin-top:0">Schreibe Artikel auf, die du öfter brauchst. Tippe einen Artikel an, dann steht er auf deiner Einkaufsliste. Nochmal antippen nimmt ihn wieder herunter.</p>
     <div class="arform">
-      <input id="arn" class="fld" maxlength="60" placeholder="Artikel, z. B. Toilettenpapier" aria-label="Artikel" enterkeyhint="done">
-      <input id="arq" class="fld" maxlength="30" placeholder="Menge (optional), z. B. 2 Pck." aria-label="Menge">
-      <div class="arbtns"><button class="btn pri" id="arsave" type="button">Speichern</button><button class="btn" id="arcancel" type="button" hidden>Abbrechen</button></div>
+      <input id="arn" class="fld" maxlength="60" placeholder="Artikel, z. B. Toilettenpapier" aria-label="Artikel" enterkeyhint="next">
+      <input id="arq" class="fld" maxlength="30" placeholder="Menge (optional), z. B. 2 Pck." aria-label="Menge" enterkeyhint="done">
+      <div class="arbtns"><button class="btn pri" id="arsave" type="button">Hinzufügen</button><button class="btn" id="arcancel" type="button" hidden>Abbrechen</button></div>
     </div>
     <div id="arl"></div>
-    <button class="btn" id="arclr" type="button" hidden>Alle von der Liste nehmen</button>
+    <div class="arbtns" id="arclrw" hidden><button class="btn" id="ardone" type="button" hidden>Erledigte entfernen</button><button class="btn" id="arclr" type="button">Alle von der Liste nehmen</button></div>
   </div>
+  <footer id="arf"><button class="btn pri" id="arcp" type="button">Liste kopieren</button><button class="btn" id="arpr" type="button">Drucken</button><span id="arst" role="status"></span></footer>
 </div>
 
 <div id="wv" hidden role="dialog" aria-modal="true" aria-label="Gespeicherte Wochen">
@@ -1568,7 +1583,7 @@ function fmt(a, u){
   if (u === 'ml' && a >= 1000){ a /= 1000; u = 'l'; }
   return String(Math.round(a * 100) / 100).replace('.', ',') + ' ' + u;
 }
-let slEnts = [], slData = {}, slIdx = 0, slTitle = '';
+let slEnts = [], slData = {}, slIdx = 0, slTitle = '', rzOpen = false;
 const WHOLE = new Set(['Stk.', 'Stück', 'Bund', 'Dose', 'Dosen', 'Pck.', 'Päckchen', 'Packung', 'Rolle', 'Glas']);
 function listFor(entries, scope, box){
   const m = new Map(), miss = []; let text = ''; const rows = [];
@@ -1587,19 +1602,20 @@ function listFor(entries, scope, box){
       m.set(key, e);
     });
   });
-  const hr = document.createElement('h3'); hr.className = 'grp'; hr.textContent = 'Rezepte'; box.append(hr);
+  const hr = document.createElement('details'); hr.className = 'rzd'; const hs = document.createElement('summary'); hs.textContent = 'Rezepte · für 2 Tage kochen'; hr.append(hs); hr.open = rzOpen; hr.ontoggle = () => { rzOpen = hr.open; };
   const seenL = new Set();
   entries.forEach(e => {
     const id = e.id, it = items.find(x => x.id === id); if (!it) return;
-    if (seenL.has(id)){ const l2 = document.createElement('label'); l2.className = 'it'; const n2 = document.createElement('span'); n2.className = 'n'; n2.textContent = planLabel(e) + ': ' + it.name; const t2 = document.createElement('span'); t2.className = 'a'; t2.textContent = 'Reste'; l2.append(n2, t2); box.append(l2); return; }
+    if (seenL.has(id)){ const l2 = document.createElement('label'); l2.className = 'it'; const n2 = document.createElement('span'); n2.className = 'n'; n2.textContent = planLabel(e) + ': ' + it.name; const t2 = document.createElement('span'); t2.className = 'a'; t2.textContent = 'Reste'; l2.append(n2, t2); hr.append(l2); return; }
     seenL.add(id);
     const l = document.createElement('label'); l.className = 'it';
     const n = document.createElement('span'); n.className = 'n'; n.textContent = planLabel(e) + ': ' + it.name;
     const t = document.createElement('span'); t.className = 'a'; t.textContent = 'Für 2 Tage';
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!two[id];
     cb.onchange = () => { if (cb.checked) two[id] = true; else delete two[id]; saveTwo(); syncTwo(id); renderList(); };
-    l.append(n, t, cb); box.append(l);
+    l.append(n, t, cb); hr.append(l);
   });
+    if (hr.querySelectorAll('label').length) box.append(hr);
   CAT.forEach((cn, ci) => {
     const rs = [...m.values()].filter(e => e.c === ci).sort((a, b) => a.n.localeCompare(b.n, 'de'));
     if (!rs.length) return;
@@ -1624,7 +1640,7 @@ function renderList(){
   const box = $('#sll'); box.textContent = ''; slData = {}; listText = ''; listRows = []; slEnts = []; slTitle = '';
   const ent = allPlan(), wis = [...new Set(ent.map(e => e.wi))];
   box.classList.toggle('multi', wis.length > 1);
-  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten. Eigene Artikel kannst du jederzeit über „Artikel zufügen“ aufschreiben.</p>'; const o = ownSec(box, 'all'); slData.all = {text: o.text, rows: o.rows, ents: []}; slSet('all'); return; }
+  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten. Eigene Artikel kannst du jederzeit über „Eigene Artikel“ aufschreiben.</p>'; const o = ownSec(box, 'all'); slData.all = {text: o.text, rows: o.rows, ents: []}; slSet('all'); return; }
   if (wis.length < 2){ listFor(ent, 'all', box); slSet('all'); return; }
   const sc = wis.map(w => ({k: 'w' + w, t: WNAME[w], ents: ent.filter(e => e.wi === w)}));
   sc.push({k: 'all', t: 'Alle Wochen', ents: ent});
@@ -2964,35 +2980,79 @@ function ownSec(box, scope){
   return out;
 }
 function artChanged(){ saveArt(); renderArt(); if (!$('#sl').hidden) renderList(); }
-function artReset(){ arEdit = null; $('#arn').value = ''; $('#arq').value = ''; $('#arsave').textContent = 'Speichern'; $('#arcancel').hidden = true; }
+function artReset(){ arEdit = null; $('#arn').value = ''; $('#arq').value = ''; $('#arsave').textContent = 'Hinzufügen'; $('#arcancel').hidden = true; }
+let myDone = [];
+try { myDone = JSON.parse(localStorage.getItem('mydone') || '[]') || []; } catch(e){}
+function saveDone(){ try { localStorage.setItem('mydone', JSON.stringify(myDone)); } catch(e){} }
+const artTxt = a => a.n + (a.q ? ' · ' + a.q : '');
 function renderArt(){
+  myDone = myDone.filter(id => myOn.includes(id));
   const l = $('#arl'); l.textContent = '';
-  if (!myArt.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Noch keine eigenen Artikel. Schreibe oben deinen ersten Artikel auf.'; l.append(p); }
-  myArt.slice().sort((a, b) => a.n.localeCompare(b.n, 'de')).forEach(a => {
-    const row = document.createElement('div'); row.className = 'arrow'; const on = myOn.includes(a.id);
-    const t = document.createElement('button'); t.type = 'button'; t.className = 'artap' + (on ? ' on' : ''); t.setAttribute('aria-pressed', String(on));
-    t.textContent = (on ? '✓ ' : '') + a.n + (a.q ? ' · ' + a.q : '');
-    t.onclick = () => { if (on) myOn = myOn.filter(x => x !== a.id); else myOn.push(a.id); artChanged(); };
+  const srt = (x, y) => x.n.localeCompare(y.n, 'de');
+  const on = myArt.filter(a => myOn.includes(a.id)).sort(srt), off = myArt.filter(a => !myOn.includes(a.id)).sort(srt);
+  const h = t => { const h3 = document.createElement('h3'); h3.className = 'grp'; h3.textContent = t; l.append(h3); };
+  const btns = (row, a) => {
     const e = document.createElement('button'); e.type = 'button'; e.className = 'btn sm'; e.textContent = 'Ändern';
-    e.onclick = () => { arEdit = a.id; $('#arn').value = a.n; $('#arq').value = a.q || ''; $('#arsave').textContent = 'Änderung speichern'; $('#arcancel').hidden = false; $('#arn').focus(); };
+    e.onclick = () => { arEdit = a.id; $('#arn').value = a.n; $('#arq').value = a.q || ''; $('#arsave').textContent = 'Änderung speichern'; $('#arcancel').hidden = false; $('#arn').focus(); window.scrollTo(0, 0); $('#arc').scrollTo({top: 0}); };
     const d = document.createElement('button'); d.type = 'button'; d.className = 'btn del sm'; d.textContent = 'Löschen';
-    d.onclick = () => { if (!confirm('Artikel „' + a.n + '“ löschen?')) return; myArt = myArt.filter(x => x.id !== a.id); myOn = myOn.filter(x => x !== a.id); if (arEdit === a.id) artReset(); artChanged(); };
-    row.append(t, e, d); l.append(row);
-  });
-  $('#arclr').hidden = !myOn.length;
+    d.onclick = () => { if (!confirm('Artikel „' + a.n + '“ löschen?')) return; myArt = myArt.filter(x => x.id !== a.id); myOn = myOn.filter(x => x !== a.id); myDone = myDone.filter(x => x !== a.id); saveDone(); if (arEdit === a.id) artReset(); artChanged(); };
+    row.append(e, d);
+  };
+  if (!myArt.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Noch keine Artikel. Schreibe oben deinen ersten Artikel auf.'; l.append(p); }
+  if (on.length){
+    h('Auf der Einkaufsliste');
+    on.forEach(a => {
+      const dn = myDone.includes(a.id), row = document.createElement('div'); row.className = 'arrow';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'ck'; cb.checked = dn; cb.setAttribute('aria-label', a.n + ' erledigt');
+      cb.onchange = () => { if (cb.checked) myDone.push(a.id); else myDone = myDone.filter(x => x !== a.id); saveDone(); renderArt(); };
+      const t = document.createElement('div'); t.className = 'artap on' + (dn ? ' dn' : ''); t.textContent = artTxt(a);
+      row.append(cb, t); btns(row, a); l.append(row);
+    });
+  }
+  if (off.length){
+    h(on.length ? 'Gespeichert (nicht auf der Liste)' : 'Gespeicherte Artikel');
+    off.forEach(a => {
+      const row = document.createElement('div'); row.className = 'arrow';
+      const t = document.createElement('button'); t.type = 'button'; t.className = 'artap'; t.setAttribute('aria-pressed', 'false'); t.textContent = '+ ' + artTxt(a);
+      t.onclick = () => { myOn.push(a.id); artChanged(); };
+      row.append(t); btns(row, a); l.append(row);
+    });
+  }
+  $('#arclrw').hidden = !myOn.length; $('#ardone').hidden = !myDone.length;
 }
-$('#sla').onclick = () => { artReset(); renderArt(); $('#ar').hidden = false; };
+function artOpen(){ artReset(); $('#arst').textContent = ''; renderArt(); $('#ar').hidden = false; }
+$('#sla').onclick = artOpen;
 $('#arx').onclick = () => { $('#ar').hidden = true; };
 $('#arcancel').onclick = artReset;
 $('#arsave').onclick = () => {
   const n = $('#arn').value.trim(), q = $('#arq').value.trim();
   if (!n){ $('#arn').focus(); return; }
   if (arEdit !== null){ const a = myArt.find(x => x.id === arEdit); if (a){ a.n = n; a.q = q; } }
-  else myArt.push({id: Date.now() + Math.floor(Math.random() * 1000), n, q});
-  artReset(); artChanged();
+  else { const id = Date.now() + Math.floor(Math.random() * 1000); myArt.push({id, n, q}); myOn.push(id); }
+  artReset(); artChanged(); $('#arn').focus();
 };
-$('#arn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arsave').click(); } });
-$('#arclr').onclick = () => { myOn = []; artChanged(); };
+$('#arn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arq').focus(); } });
+$('#arq').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arsave').click(); } });
+$('#arclr').onclick = () => { myOn = []; myDone = []; saveDone(); artChanged(); };
+$('#ardone').onclick = () => { myOn = myOn.filter(id => !myDone.includes(id)); myDone = []; saveDone(); artChanged(); };
+const arOpen = () => myArt.filter(a => myOn.includes(a.id) && !myDone.includes(a.id)).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+$('#arcp').onclick = async () => {
+  const s = $('#arst'), L = arOpen(); if (!L.length){ s.textContent = 'Nichts zu kopieren.'; return; }
+  const txt = L.map(a => a.q ? a.n + ' ' + a.q : a.n).join('\n');
+  try { await navigator.clipboard.writeText(txt); s.textContent = 'Kopiert.'; }
+  catch(e){ try { const t = document.createElement('textarea'); t.value = txt; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); s.textContent = 'Kopiert.'; } catch(e2){ s.textContent = 'Kopieren nicht möglich.'; } }
+};
+$('#arpr').onclick = () => {
+  const L = arOpen(), s = $('#arst'); if (!L.length){ s.textContent = 'Es gibt nichts zu drucken.'; return; }
+  const pl = $('#pl'); pl.textContent = '';
+  const h1 = document.createElement('h1'); h1.textContent = 'Einkaufen'; pl.append(h1);
+  const cols = document.createElement('div'); cols.className = 'plcols'; const g = document.createElement('div'); g.className = 'plg';
+  L.forEach(a => { const d = document.createElement('div'); d.className = 'plr'; const bx = document.createElement('span'); bx.className = 'bx'; const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = a.n; const am = document.createElement('span'); am.className = 'am'; am.textContent = a.q || ''; d.append(bx, nm, am); g.append(d); });
+  cols.append(g); pl.append(cols);
+  const cl = document.body.classList; cl.remove('pm-one'); cl.remove('withphoto'); cl.add('pm-list');
+  try { window.print(); } catch(e){}
+  s.textContent = 'Falls sich kein Druckfenster öffnet, öffne die Seite im normalen Browser.'; setTimeout(() => { s.textContent = ''; }, 8000);
+};
 
 /* Wochen speichern und wieder übernehmen */
 let savedW = [];
