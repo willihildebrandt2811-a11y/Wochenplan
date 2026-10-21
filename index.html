@@ -437,12 +437,17 @@ details.cgp .gbody,details.cgp .gbody *{box-sizing:border-box}
 .rzd summary{cursor:pointer;font-size:.8rem;font-weight:700;color:var(--mut);padding:6px 0;list-style:none}
 .rzd summary::before{content:"▸ "}.rzd[open] summary::before{content:"▾ "}
 .rzd .it{font-size:.82rem;min-height:36px;padding:5px 0}.rzd .it input{width:18px;height:18px}
+#sll .it{font-size:.84rem;min-height:34px;padding:5px 0;gap:10px}#sll .it input{width:18px;height:18px}
+#sll h3.grp{font-size:.7rem;margin:12px 0 2px}
 #sla.sm{min-height:34px;padding:0 10px;font-size:.8rem}
 #ar header{padding:6px 10px}#ar header strong{font-size:.95rem}#ar header .btn{min-height:34px;font-size:.8rem;padding:0 10px}
 #arc{padding:8px 14px 16px}#ar .arform .fld{margin:4px 0 6px;min-height:38px;padding:6px 10px;font-size:.9rem}
 #ar .btn{min-height:34px;font-size:.8rem;padding:0 10px}
-#ar .arrow{margin:5px 0;gap:6px}#ar .arrow .artap{min-height:36px;padding:6px 10px;font-size:.88rem;border-radius:11px}
-#ar .arrow .ck{width:20px;height:20px}#ar .arrow .btn.sm{min-height:30px;font-size:.74rem;padding:0 8px}
+#ar .arrow{margin:5px 0;gap:6px}#ar .arrow .artap{min-height:32px;padding:4px 10px;font-size:.8rem;font-weight:500;border-radius:10px;display:flex;align-items:center;gap:8px}
+#ar .arrow .ck{width:17px;height:17px;margin:0}#ar .arrow .btn.sm{min-height:28px;font-size:.7rem;padding:0 7px}
+#ar .artap.dn{text-decoration:line-through;opacity:.55}
+#ar #arclrw{margin:12px 0 8px}
+#ar .artap.off{color:var(--mut);background:var(--surf)}
 #ar h3.grp{font-size:.72rem;margin:10px 0 2px}
 #ar footer{padding:6px 10px;gap:8px}
 .arrow .btn{flex:none}
@@ -780,7 +785,8 @@ if(!ok()){
       <div class="arbtns"><button class="btn pri" id="arsave" type="button">Hinzufügen</button><button class="btn" id="arcancel" type="button" hidden>Abbrechen</button></div>
     </div>
     <div id="arl"></div>
-    <div class="arbtns" id="arclrw" hidden><button class="btn" id="ardone" type="button" hidden>Erledigte entfernen</button><button class="btn" id="arclr" type="button">Alle von der Liste nehmen</button></div>
+    <div class="arbtns" id="arclrw" hidden><button class="btn" id="arclr" type="button">Liste löschen</button></div>
+    <div id="arl2"></div>
   </div>
   <footer id="arf"><button class="btn pri" id="arcp" type="button">Liste kopieren</button><button class="btn" id="arpr" type="button">Drucken</button><span id="arst" role="status"></span></footer>
 </div>
@@ -1632,7 +1638,6 @@ function listFor(entries, scope, box){
     });
   });
   if (miss.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Für diese Rezepte sind keine Zutaten hinterlegt: ' + miss.join(', '); box.append(p); }
-  { const o = ownSec(box, scope); text += o.text; rows.push(...o.rows); }
   slData[scope] = {text, rows, ents: entries};
 }
 function slSet(k){ const d = slData[k]; if (!d) return; listText = d.text; listRows = d.rows; slEnts = d.ents; }
@@ -1640,7 +1645,7 @@ function renderList(){
   const box = $('#sll'); box.textContent = ''; slData = {}; listText = ''; listRows = []; slEnts = []; slTitle = '';
   const ent = allPlan(), wis = [...new Set(ent.map(e => e.wi))];
   box.classList.toggle('multi', wis.length > 1);
-  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten. Eigene Artikel kannst du jederzeit über „Eigene Artikel“ aufschreiben.</p>'; const o = ownSec(box, 'all'); slData.all = {text: o.text, rows: o.rows, ents: []}; slSet('all'); return; }
+  if (!ent.length){ box.innerHTML = '<p class="note">Plane zuerst auf der Startseite Rezepte für die Woche. Dann erscheinen hier alle Zutaten.</p>'; slData.all = {text: '', rows: [], ents: []}; slSet('all'); return; }
   if (wis.length < 2){ listFor(ent, 'all', box); slSet('all'); return; }
   const sc = wis.map(w => ({k: 'w' + w, t: WNAME[w], ents: ent.filter(e => e.wi === w)}));
   sc.push({k: 'all', t: 'Alle Wochen', ents: ent});
@@ -2981,44 +2986,38 @@ function ownSec(box, scope){
 }
 function artChanged(){ saveArt(); renderArt(); if (!$('#sl').hidden) renderList(); }
 function artReset(){ arEdit = null; $('#arn').value = ''; $('#arq').value = ''; $('#arsave').textContent = 'Hinzufügen'; $('#arcancel').hidden = true; }
+const artTxt = a => a.n + (a.q ? ' · ' + a.q : '');
 let myDone = [];
 try { myDone = JSON.parse(localStorage.getItem('mydone') || '[]') || []; } catch(e){}
 function saveDone(){ try { localStorage.setItem('mydone', JSON.stringify(myDone)); } catch(e){} }
-const artTxt = a => a.n + (a.q ? ' · ' + a.q : '');
 function renderArt(){
   myDone = myDone.filter(id => myOn.includes(id));
-  const l = $('#arl'); l.textContent = '';
-  const srt = (x, y) => x.n.localeCompare(y.n, 'de');
-  const on = myArt.filter(a => myOn.includes(a.id)).sort(srt), off = myArt.filter(a => !myOn.includes(a.id)).sort(srt);
-  const h = t => { const h3 = document.createElement('h3'); h3.className = 'grp'; h3.textContent = t; l.append(h3); };
+  const l = $('#arl'), l2 = $('#arl2'); l.textContent = ''; l2.textContent = '';
+  const cmp = (x, y) => x.n.localeCompare(y.n, 'de', {sensitivity: 'base', numeric: true});
   const btns = (row, a) => {
     const e = document.createElement('button'); e.type = 'button'; e.className = 'btn sm'; e.textContent = 'Ändern';
-    e.onclick = () => { arEdit = a.id; $('#arn').value = a.n; $('#arq').value = a.q || ''; $('#arsave').textContent = 'Änderung speichern'; $('#arcancel').hidden = false; $('#arn').focus(); window.scrollTo(0, 0); $('#arc').scrollTo({top: 0}); };
+    e.onclick = () => { arEdit = a.id; $('#arn').value = a.n; $('#arq').value = a.q || ''; $('#arsave').textContent = 'Änderung speichern'; $('#arcancel').hidden = false; $('#arn').focus(); $('#arc').scrollTo({top: 0}); };
     const d = document.createElement('button'); d.type = 'button'; d.className = 'btn del sm'; d.textContent = 'Löschen';
     d.onclick = () => { if (!confirm('Artikel „' + a.n + '“ löschen?')) return; myArt = myArt.filter(x => x.id !== a.id); myOn = myOn.filter(x => x !== a.id); myDone = myDone.filter(x => x !== a.id); saveDone(); if (arEdit === a.id) artReset(); artChanged(); };
     row.append(e, d);
   };
+  const on = myArt.filter(a => myOn.includes(a.id)).sort(cmp), off = myArt.filter(a => !myOn.includes(a.id)).sort(cmp);
   if (!myArt.length){ const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Noch keine Artikel. Schreibe oben deinen ersten Artikel auf.'; l.append(p); }
-  if (on.length){
-    h('Auf der Einkaufsliste');
-    on.forEach(a => {
-      const dn = myDone.includes(a.id), row = document.createElement('div'); row.className = 'arrow';
-      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'ck'; cb.checked = dn; cb.setAttribute('aria-label', a.n + ' erledigt');
-      cb.onchange = () => { if (cb.checked) myDone.push(a.id); else myDone = myDone.filter(x => x !== a.id); saveDone(); renderArt(); };
-      const t = document.createElement('div'); t.className = 'artap on' + (dn ? ' dn' : ''); t.textContent = artTxt(a);
-      row.append(cb, t); btns(row, a); l.append(row);
-    });
-  }
-  if (off.length){
-    h(on.length ? 'Gespeichert (nicht auf der Liste)' : 'Gespeicherte Artikel');
-    off.forEach(a => {
-      const row = document.createElement('div'); row.className = 'arrow';
-      const t = document.createElement('button'); t.type = 'button'; t.className = 'artap'; t.setAttribute('aria-pressed', 'false'); t.textContent = '+ ' + artTxt(a);
-      t.onclick = () => { myOn.push(a.id); artChanged(); };
-      row.append(t); btns(row, a); l.append(row);
-    });
-  }
-  $('#arclrw').hidden = !myOn.length; $('#ardone').hidden = !myDone.length;
+  on.forEach(a => {
+    const dn = myDone.includes(a.id), row = document.createElement('div'); row.className = 'arrow';
+    const lb = document.createElement('label'); lb.className = 'artap on' + (dn ? ' dn' : '');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'ck'; cb.checked = dn; cb.setAttribute('aria-label', a.n + ' abgehakt');
+    cb.onchange = () => { if (cb.checked) myDone.push(a.id); else myDone = myDone.filter(x => x !== a.id); saveDone(); renderArt(); };
+    const t = document.createElement('span'); t.textContent = artTxt(a);
+    lb.append(cb, t); row.append(lb); btns(row, a); l.append(row);
+  });
+  off.forEach(a => {
+    const row = document.createElement('div'); row.className = 'arrow';
+    const t = document.createElement('button'); t.type = 'button'; t.className = 'artap off'; t.textContent = artTxt(a);
+    t.onclick = () => { myOn.push(a.id); artChanged(); };
+    row.append(t); btns(row, a); l2.append(row);
+  });
+  $('#arclrw').hidden = !on.length;
 }
 function artOpen(){ artReset(); $('#arst').textContent = ''; renderArt(); $('#ar').hidden = false; }
 $('#sla').onclick = artOpen;
@@ -3033,9 +3032,8 @@ $('#arsave').onclick = () => {
 };
 $('#arn').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arq').focus(); } });
 $('#arq').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('#arsave').click(); } });
-$('#arclr').onclick = () => { myOn = []; myDone = []; saveDone(); artChanged(); };
-$('#ardone').onclick = () => { myOn = myOn.filter(id => !myDone.includes(id)); myDone = []; saveDone(); artChanged(); };
-const arOpen = () => myArt.filter(a => myOn.includes(a.id) && !myDone.includes(a.id)).sort((x, y) => x.n.localeCompare(y.n, 'de'));
+$('#arclr').onclick = () => { myOn = myOn.filter(id => !myDone.includes(id)); myDone = []; saveDone(); artChanged(); };
+const arOpen = () => myArt.filter(a => myOn.includes(a.id) && !myDone.includes(a.id)).sort((x, y) => x.n.localeCompare(y.n, 'de', {sensitivity: 'base', numeric: true}));
 $('#arcp').onclick = async () => {
   const s = $('#arst'), L = arOpen(); if (!L.length){ s.textContent = 'Nichts zu kopieren.'; return; }
   const txt = L.map(a => a.q ? a.n + ' ' + a.q : a.n).join('\n');
