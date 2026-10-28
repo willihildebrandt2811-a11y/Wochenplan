@@ -1153,6 +1153,37 @@ async function pageSteps(pg){
   }
   return out.length ? out.join('\n') : '';
 }
+async function pageIng(pg){
+  const tc = await pg.getTextContent();
+  const t = tc.items.filter(i => i.str.trim());
+  const rows = [];
+  t.forEach(i => { const y = i.transform[5]; let r = rows.find(r => Math.abs(r.y - y) < 2.5); if (!r){ r = {y, p: []}; rows.push(r); } r.p.push({x: i.transform[4], w: i.width || 0, s: i.str, f: i.fontName}); });
+  rows.sort((a, b) => b.y - a.y);
+  const hd = re => rows.findIndex(r => { const q = r.p.slice().sort((a, b) => a.x - b.x); return re.test(q.map(z => z.s).join(' ').replace(/\s+/g, ' ').trim()); });
+  const a = hd(/^zutaten\b/i), b = hd(/^(zubereitung|so geht|anleitung)/i);
+  if (a < 0) return null;
+  const seg = [], fc = {};
+  rows.slice(a + 1, b > a ? b : rows.length).forEach(r => {
+    const q = r.p.filter(z => !/^[•\-–*▪●◆○]$/.test(z.s.trim())).sort((m, n) => m.x - n.x);
+    let cur = null;
+    q.forEach(z => {
+      if (cur && z.x - (cur.e) < 12){ cur.s += (/\s$/.test(cur.s) || /^\s/.test(z.s) ? '' : ' ') + z.s; cur.e = z.x + z.w; cur.f.push(z.f); }
+      else { cur = {x: z.x, y: r.y, s: z.s, e: z.x + z.w, f: [z.f]}; seg.push(cur); }
+    });
+  });
+  seg.forEach(g => { g.s = g.s.replace(/\s+/g, ' ').trim(); g.f.forEach(f => { fc[f] = (fc[f] || 0) + 1; }); });
+  const main = Object.keys(fc).sort((m, n) => fc[n] - fc[m])[0];
+  const xs = [...new Set(seg.map(g => Math.round(g.x / 6)))].sort((m, n) => m - n);
+  const cols = []; xs.forEach(x => { if (!cols.length || x - cols[cols.length - 1] > 4) cols.push(x); });
+  const colOf = g => { const x = Math.round(g.x / 6); let c = 0; cols.forEach((k, i) => { if (x >= k - 4) c = i; }); return c; };
+  const out = [];
+  cols.forEach((_, ci) => seg.filter(g => colOf(g) === ci).sort((m, n) => n.y - m.y).forEach(g => {
+    if (!g.s || g.f.every(f => f !== main)) return;
+    out.push(g.s);
+  }));
+  return out.length ? out : null;
+}
+function cleanIng(l){ return l.replace(/\s+/g, ' ').trim(); }
 async function importPdf(file){
   const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
   const base = file.name.replace(/\.pdf$/i, '');
@@ -1165,6 +1196,7 @@ async function importPdf(file){
     try { name = (await pageTitle(pg)) || name; } catch(e){}
     const it = {name, img: c.toDataURL('image/jpeg', .85)};
     try { const st = await pageSteps(pg); if (st) it.steps = st; } catch(e){}
+    try { const li = await pageIng(pg); if (li && li.length){ it.lines = li.map(cleanIng); it.ing = it.lines.map(l => { const r = parseLine(l, null); r[0] = r[0].replace(/,.*$/, '').trim() || r[0]; return r; }); it.pdf = true; } } catch(e){}
     it.id = db ? await tx('readwrite', s => s.add(it)) : Date.now() + n;
     items.push(it); sortItems(); draw();
   }
@@ -1510,6 +1542,7 @@ function ingOf(it){ if (it.ing) return it.ing; const r = seedIdx(it); return r >
 const UN = {kg:'kg', g:'g', ml:'ml', l:'l', el:'EL', tl:'TL', 'stk.':'Stk.', 'stück':'Stück', bund:'Bund', prise:'Prise', 'pck.':'Pck.', 'päckchen':'Päckchen', packung:'Packung', dose:'Dose', dosen:'Dosen', glas:'Glas', rolle:'Rolle', handvoll:'Handvoll'};
 function lineOf(x){ return ((x[1] === null || x[1] === undefined ? '' : fmt(x[1], x[2]) + ' ') + x[0]).trim(); }
 function parseLine(l, old){
+  l = l.replace(/^(\d+(?:[.,]\d+)?)\s*[–-]\s*(\d+(?:[.,]\d+)?)/, '$2').replace(/\s(?:gestr\.|gehäuft|geh\.|gestrichen)\s/i, ' ');
   let a = null, u = '', n = l;
   const m = l.match(/^(\d+\/\d+|\d+(?:[.,]\d+)?|[¼½¾])\s*(kg|g|ml|l|EL|TL|Stk\.|Stück|Bund|Prise|Pck\.|Päckchen|Packung|Dosen|Dose|Glas|Rolle|Handvoll)?(?=\s|$)\s*(.*)$/i);
   if (m && m[3]){
@@ -2197,7 +2230,7 @@ $('#nis').onclick = async () => {
       it.seedIdx = seedIdx(it); it.name = name; it.lines = lines; it.steps = steps;
       const old = ingOf(it); if (lc || it.edited || steps) it.ing = lines.map(l => parseLine(l, old));
       const sv = $('#nil').value.trim(); if (okUrl(sv)) it.src = sv; else delete it.src;
-      if (it.edited || steps || lc){ it.edited = true; it.img = ideaImg(name, lines, steps, srcLabel(it.src)); cropCache.delete(it.id); }
+      if (!it.pdf && (it.edited || steps || lc)){ it.edited = true; it.img = ideaImg(name, lines, steps, srcLabel(it.src)); cropCache.delete(it.id); }
       if (db) try { await tx('readwrite', s => s.put(it)); } catch(e){}
       cats.forEach(c => setCat(it.id, c, newCats.has(c)));
       sortItems(); draw();
