@@ -717,6 +717,12 @@ if(!ok()){
       <p id="bks" class="note" role="status" style="margin:8px 0 0"></p>
       <button class="btn pri sm" id="bkapply" hidden>Jetzt ersetzen</button>
     </div>
+    <div class="expbox">
+      <div class="cap">Aufräumen</div>
+      <p class="note" style="margin:0 0 10px">Löscht Rezepte, die beim PDF-Import nur als „…, Seite 12“ ohne Titel angelegt wurden.</p>
+      <button class="btn sm" id="clngo">Rezepte „…, Seite N“ löschen</button>
+      <p id="clns" class="note" role="status" style="margin:8px 0 0"></p>
+    </div>
     </div>
     <div data-sec="upd" hidden>
     <div class="expbox">
@@ -1179,15 +1185,22 @@ async function pageIng(pg){
   const out = [];
   cols.forEach((_, ci) => seg.filter(g => colOf(g) === ci).sort((m, n) => n.y - m.y).forEach(g => {
     if (!g.s || g.f.every(f => f !== main)) return;
-    out.push(g.s);
+    if (out.length && /^[a-zäöüß]/.test(g.s) && !/\d/.test(g.s) && (/,/.test(out[out.length - 1]) || /(und|oder|mit|von|in|gut)$/.test(out[out.length - 1]))) out[out.length - 1] += ' ' + g.s;
+    else out.push(g.s);
   }));
   return out.length ? out : null;
 }
-function cleanIng(l){ return l.replace(/\s+/g, ' ').trim(); }
+function cleanIng(l){ return l.replace(/\s+/g, ' ').replace(/^[•\-–*▪●◆○·]\s*/, '').trim(); }
+let impStat = {n: 0, z: 0, skip: 0};
 async function importPdf(file){
   const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
   const base = file.name.replace(/\.pdf$/i, '');
+  let wd = null;
+  try { const md = await pdf.getMetadata(), sv = md && md.info && md.info.Custom && md.info.Custom.WilliData; if (sv){ const j = JSON.parse(decodeURIComponent(String(sv))); if (Array.isArray(j)) wd = j; } } catch(e){}
+  const have = new Set(items.map(x => (x.name || '').toLowerCase()));
   for (let n = 1; n <= pdf.numPages; n++){
+    const mt = wd && wd[n - 1];
+    if (mt && mt.name && have.has(String(mt.name).toLowerCase())){ impStat.skip++; continue; }
     status(`${file.name}: Seite ${n} von ${pdf.numPages}`);
     const pg = await pdf.getPage(n), vp = pg.getViewport({scale: 2});
     const c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
@@ -1195,10 +1208,22 @@ async function importPdf(file){
     let name = `${base}, Seite ${n}`;
     try { name = (await pageTitle(pg)) || name; } catch(e){}
     const it = {name, img: c.toDataURL('image/jpeg', .85)};
+    if (mt && mt.name){
+      it.name = mt.name; ['lines', 'steps', 'ing', 'src', 'idea', 'pdf', 'edited'].forEach(k => { if (mt[k] !== undefined) it[k] = mt[k]; });
+      if (!it.idea && !it.pdf) it.pdf = true;
+    } else {
     try { const st = await pageSteps(pg); if (st) it.steps = st; } catch(e){}
     try { const li = await pageIng(pg); if (li && li.length){ it.lines = li.map(cleanIng); it.ing = it.lines.map(l => { const r = parseLine(l, null); r[0] = r[0].replace(/,.*$/, '').trim() || r[0]; return r; }); it.pdf = true; } } catch(e){}
+    }
     it.id = db ? await tx('readwrite', s => s.add(it)) : Date.now() + n;
-    items.push(it); sortItems(); draw();
+    items.push(it); have.add(String(it.name).toLowerCase());
+    if (mt && Array.isArray(mt.cats) && mt.cats.length){
+      mt.cats.forEach(c => { if (!cats.some(x => x.toLowerCase() === String(c).toLowerCase())){ cats.push(String(c)); catSort(); } });
+      const a = mt.cats.map(c => cats.find(x => x.toLowerCase() === String(c).toLowerCase())).filter(Boolean);
+      if (a.length){ catMap[it.id] = a; saveCats(); }
+    }
+    sortItems(); draw();
+    impStat.n++; if (it.ing) impStat.z++;
   }
 }
 
@@ -1206,7 +1231,8 @@ async function handle(list){
   const files = [...list].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
   if (!files.length){ status('Das ist kein PDF. Bitte wähle eine PDF-Datei.'); return; }
   $('#add').style.opacity = '.5';
-  try { for (const f of files) await importPdf(f); status('Fertig. Tippe ein Rezept an, um es zu öffnen.'); }
+  impStat = {n: 0, z: 0, skip: 0};
+  try { for (const f of files) await importPdf(f); status('Fertig. ' + impStat.n + ' Rezept(e) eingelesen' + (impStat.skip ? ', ' + impStat.skip + ' schon vorhanden (übersprungen)' : '') + ', Zutaten erkannt bei ' + impStat.z + '. ' + (impStat.z < impStat.n ? 'Fehlende Zutaten kannst du im Rezept unter „Korrektur“ eintragen. ' : '') + 'Tippe ein Rezept an, um es zu öffnen.'); }
   catch(err){ status('Das PDF konnte nicht gelesen werden. Bitte versuche eine andere Datei.'); }
   $('#add').style.opacity = '';
 }
@@ -2236,7 +2262,7 @@ $('#nis').onclick = async () => {
       sortItems(); draw();
       if (!$('#v').hidden) show(items.indexOf(it));
     } else if (it){
-      it.name = name; it.lines = lines; it.steps = steps; const sv = $('#nil').value.trim(); if (okUrl(sv)) it.src = sv; else delete it.src; it.img = ideaImg(name, lines, steps, srcLabel(it.src)); cropCache.delete(it.id);
+      it.name = name; it.lines = lines; it.steps = steps; const sv = $('#nil').value.trim(); if (okUrl(sv)) it.src = sv; else delete it.src; if (it.idea){ it.img = ideaImg(name, lines, steps, srcLabel(it.src)); cropCache.delete(it.id); } else { it.ing = lines.map(l => parseLine(l, it.ing)); it.pdf = true; }
       if (db) try { await tx('readwrite', s => s.put(it)); } catch(e){}
       cats.forEach(c => setCat(it.id, c, newCats.has(c)));
       sortItems(); draw();
@@ -2693,11 +2719,13 @@ async function buildPdf(list, onPage){
   const enc = new TextEncoder(), parts = [], offs = []; let len = 0;
   const push = b => { if (typeof b === 'string') b = enc.encode(b); parts.push(b); len += b.length; };
   const n = list.length, W = 595.28;
+  const meta = list.map(it => { const m = {name: it.name, cats: (typeof catsOf === 'function' ? catsOf(it.id) : [])}; ['lines', 'steps', 'ing', 'src', 'idea', 'pdf', 'edited'].forEach(k => { if (it[k] !== undefined) m[k] = it[k]; }); return m; });
+  const wd = Array.from(enc.encode(encodeURIComponent(JSON.stringify(meta)))).map(b => b.toString(16).padStart(2, '0')).join('');
   push('%PDF-1.4\n%âãÏÓ\n');
   offs[1] = len; push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
   const kids = []; for (let i = 0; i < n; i++) kids.push((6 + 3 * i) + ' 0 R');
   offs[2] = len; push('2 0 obj\n<< /Type /Pages /Count ' + n + ' /Kids [' + kids.join(' ') + '] >>\nendobj\n');
-  offs[3] = len; push('3 0 obj\n<< /Title (Willicious) /Producer (Willicious) >>\nendobj\n');
+  offs[3] = len; push('3 0 obj\n<< /Title (Willicious) /Producer (Willicious) /WilliData <' + wd + '> >>\nendobj\n');
   for (let i = 0; i < n; i++){
     if (onPage) onPage(i + 1, n);
     const img = await new Promise((res, rej) => { const m = new Image(); m.onload = () => res(m); m.onerror = rej; m.src = list[i].img; });
@@ -2794,6 +2822,14 @@ $('#bkweb').onclick = async () => {
 };
 
 
+
+$('#clngo').onclick = async () => {
+  const L = items.filter(x => /, Seite \d+$/.test(x.name || '')), st = $('#clns');
+  if (!L.length){ st.textContent = 'Keine solchen Rezepte gefunden.'; return; }
+  if (!confirm(L.length + ' Rezepte mit „…, Seite N“ im Namen löschen?')) return;
+  for (const it of L){ if (db) try { await tx('readwrite', s => s.delete(it.id)); } catch(e){} const i = items.indexOf(it); if (i >= 0) items.splice(i, 1); }
+  draw(); st.textContent = L.length + ' Rezepte gelöscht.';
+};
 
 /* Rezepte austauschen: nur neue Rezepte, ohne Doppelte */
 const BUILTIN = new Set(["backfisch mit remoulade", "bauernbrot ohne kneten", "blumenkohl-gratin mit käsesoße", "bolognese-soße aus dem thermomix", "chicken wings aus dem airfryer", "cremige kürbissuppe", "cremige rindfleisch-zwiebel-pfanne mit champignons", "curry-geschnetzeltes mit gemüse", "dinkelbrötchen mit sesam", "eistee mit zitrone und minze", "erdbeer-bananen-smoothie", "essen bestellen", "fladenbrot aus der pfanne", "flammkuchen", "fluffige pfannkuchen", "frikadellen aus dem airfryer", "frische zitronenlimonade", "frühstücksbrötchen über nacht", "gefüllte paprika mit hack und reis", "gemüse-kichererbsen-curry", "gemüsebrühpaste (thermomix)", "griechischer salat", "grießbrei mit kirschen", "guacamole", "gurkensalat mit dill", "hackbraten mit rahmsoße", "hausgemachte tomatensoße", "heiße schokolade", "hello fresh", "hähnchen mit reis und gemüse", "hähnchen-brokkoli-auflauf", "hähnchen-curry aus dem thermomix", "hähnchenschenkel aus dem ofen mit gemüse", "hühnersuppe mit nudeln", "ingwer-zitronen-tee", "instant-mama-nudelsalat", "joghurtbrot (schnellbrot ohne hefe)", "kaiserschmarrn", "kartoffel-hack-auflauf", "kartoffel-karotten-püree aus dem thermomix", "kartoffelbrot", "kartoffelsuppe im ofenmeister mit wiener würstchen", "klassischer kartoffelsalat mit brühe", "knoblauch-garnelen mit reis", "knusprige hähnchen-nuggets aus dem ofen", "knusprige pommes aus dem airfryer", "krautsalat wie beim imbiss", "kräuterquark-dip", "käse-schinken-hörnchen", "käsekuchen ohne boden", "käsespätzle mit röstzwiebeln", "körnerbrot mit haferflocken", "lachsfilet aus dem ofen mit zitrone", "lasagne mit hackfleisch", "laugenbrötchen", "linseneintopf mit würstchen", "makkaroni-auflauf mit hackfleisch", "marmorkuchen", "milchbrötchen", "milchreis mit zimt und zucker", "mozzarella-sticks aus dem airfryer", "ofengemüse mit feta", "ofenkartoffeln mit kräuterquark", "one-pot-pasta mit tomaten und mozzarella", "pilz-risotto aus dem thermomix", "pizza vom blech", "quiche lorraine", "rindergulasch", "rosenkohl-pfanne", "schnelle quarkbrötchen", "schoko-cookies", "schupfnudeln mit speck und pilzen", "seelachs in senf-dill-soße", "selbstgemachte bbq-soße", "spaghetti mit spiegelei und pecorino", "spaghetti mit thunfisch-tomatensoße", "spinat-feta-taschen", "spitzkohl-kartoffelstampf", "streuselkuchen vom blech", "süßkartoffel-wedges aus dem airfryer", "tomatensuppe mit sahne", "tortellini in schinken-sahne-sauce", "tzatziki", "versunkener apfelkuchen", "zitronenkuchen mit guss", "zucchini-puffer mit kräuterdip"]);
