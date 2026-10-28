@@ -869,8 +869,8 @@ async function init(){
   initGroups();
   await seedRecipes2();
   await seedRecipes3(); await seedRecipes4(); await seedRecipes5(); await seedRecipes6(); await seedRecipes7(); await seedExtra1();
-  sortItems(); draw();
-  rzAuto().catch(() => {});
+  sortItems(); draw(); rzSortCats();
+  rzAuto().then(() => rzSortCats()).catch(() => {});
 }
 
 const DAYS = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
@@ -2856,6 +2856,20 @@ async function rzMerge(list, seen){
   if (add){ saveCats(); sortItems(); draw(); }
   return {add, skip};
 }
+/* Eigene Rezepte automatisch einsortieren (je Rezept einmalig, nur wenn noch ohne Kategorie) */
+function rzSortCats(){
+  const M = {"BBQ-Hähnchenschenkel mit Ofenkartoffeln":["Hähnchen Gerichte","Kartoffel Gerichte"],"Brokkoli Gemüse Suppe":["Suppe / Eintopf","Gemüse","Vegetarisch"],"Cevapcici mit Djuvec Reis":["Fleisch Rezepte"],"Cremekartoffeln mit Spinat":["Kartoffel Gerichte","Vegetarisch"],"Curry-Möhren-Risotto":["Vegetarisch","Gemüse"],"Djuvec Reis":["Gemüse"],"Gebratene Nudeln mit Huhn":["Nudel Gerichte","Hähnchen Gerichte"],"Hackbällchen mit Currysauce":["Fleisch Rezepte"],"Hähnchen Gemüse im Bräter":["Hähnchen Gerichte"],"Hähnchen Jäger-Art mit Schupfnudeln, Pilzen & Käsekruste":["Hähnchen Gerichte"],"Hähnchen-Curry aus der Ofenhexe":["Hähnchen Gerichte"],"Haselnüsse Makronen":["Süßes"],"Käsekuchen mit Blaubeeren":["Kuchen"],"Kassler mit Wirsing":["Fleisch Rezepte"],"Kohlrouladen für Faule":["Fleisch Rezepte"],"Königsberger Klopse":["Fleisch Rezepte"],"Lende mit Bandnudeln":["Fleisch Rezepte","Nudel Gerichte"],"Linsen Eintopf mit Kartoffeln":["Suppe / Eintopf"],"Linsen-Moussaka":["Vegetarisch"],"Mailänder Makkaroni":["Nudel Gerichte"],"Putenrouladen mediterran":["Fleisch Rezepte"],"Rosenkohl mit Gulasch":["Fleisch Rezepte"],"Schweinefilet in Zwiebel-Apfel-Sahnesoße mit Brokkoli, Karotten und Drillingen":["Fleisch Rezepte"],"Schweinefilet mit Klöße":["Fleisch Rezepte"],"Streuselkuchen mit Vanillepudding":["Kuchen"],"Türkische Pizza – Lahmacun":["Fleisch Rezepte","Herzhaftes"],"Ungarisches Paprikagulasch":["Fleisch Rezepte"]};
+  let done = []; try { done = JSON.parse(localStorage.getItem('rzcat') || '[]'); } catch(e){}
+  let ch = false;
+  items.forEach(it => {
+    const m = M[it.name]; if (!m || done.includes(it.name)) return;
+    done.push(it.name); ch = true;
+    if (catsOf(it.id).length) return;
+    const a = m.map(c => cats.find(x => x.toLowerCase() === c.toLowerCase())).filter(Boolean);
+    if (a.length) catMap[it.id] = a;
+  });
+  if (ch){ saveCats(); try { localStorage.setItem('rzcat', JSON.stringify(done)); } catch(e){} draw(); }
+}
 async function rzAuto(){
   if (!/^https?:/.test(location.protocol)) return 0;
   const r = await fetch('rezepte.json?t=' + Date.now(), {cache: 'no-store'}); if (!r.ok) return 0;
@@ -3000,7 +3014,7 @@ $('#updgo').onclick = async () => {
   btn.disabled = true; st.textContent = 'Suche nach Updates …';
   try {
     if (!navigator.onLine){ st.textContent = 'Du bist offline. Bitte mit dem Internet verbinden.'; return; }
-    let n = 0; try { n = await rzAuto(); } catch(e){}
+    let n = 0; try { n = await rzAuto(); rzSortCats(); } catch(e){}
     let appNew = false;
     const reg = ('serviceWorker' in navigator) ? await navigator.serviceWorker.getRegistration() : null;
     if (reg){
