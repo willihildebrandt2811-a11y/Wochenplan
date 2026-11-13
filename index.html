@@ -723,6 +723,15 @@ if(!ok()){
       <button class="btn sm" id="clngo">Rezepte „…, Seite N“ löschen</button>
       <p id="clns" class="note" role="status" style="margin:8px 0 0"></p>
     </div>
+    <div class="expbox" id="sybox">
+      <div class="cap">Abgleich mit anderen Geräten</div>
+      <p class="note" style="margin:0 0 10px">Wochenplan, Einkaufsliste, Sterne, Notizen, Kategorien und eigene Rezepte werden zwischen deinen Geräten abgeglichen. Gib auf jedem Gerät denselben geheimen Code ein. Verbinde zuerst das Gerät mit den aktuellen Daten und warte auf „✓ Abgeglichen“. Ein weiteres Gerät übernimmt beim ersten Verbinden die Daten aus der Cloud.</p>
+      <input id="sycode" type="text" placeholder="Geheimer Code (mind. 8 Zeichen)" autocomplete="off" autocapitalize="none" spellcheck="false" style="width:100%;box-sizing:border-box;margin:0 0 8px">
+      <button class="btn pri sm" id="sygo">Verbinden</button>
+      <button class="btn sm" id="synow" hidden>Jetzt abgleichen</button>
+      <button class="btn sm" id="syoff" hidden>Trennen</button>
+      <p id="syst" class="note" role="status" style="margin:8px 0 0"></p>
+    </div>
     </div>
     <div data-sec="upd" hidden>
     <div class="expbox">
@@ -3249,6 +3258,163 @@ async function seedExtra1(){
   }
   try { localStorage.setItem('recx1', '1'); } catch(e){}
 }
+
+/* ===== Abgleich zwischen Geräten (Firebase Firestore, nur per REST) ===== */
+const FB_PID = window.__FB_PID || 'willicious-1a730', FB_KEY = window.__FB_KEY || 'AIzaSyCHW0FzIQOimJp3pRexR7TiBIa3HbVlrI0';
+let syBusy = false, syTimer = null, syDeb = null, syById = new Map(), syByName = new Map();
+const syCfg = () => { try { return JSON.parse(localStorage.getItem('sync') || 'null'); } catch(e){ return null; } };
+const syLS = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch(e){ return d; } };
+const syUi = t => { const e = $('#syst'); if (e) e.textContent = t; };
+const syNow = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function syMaps(){ syById = new Map(); syByName = new Map(); items.forEach(it => { syById.set(String(it.id), it.name); if (!syByName.has(it.name)) syByName.set(it.name, it.id); }); }
+const syN = id => (id == null ? null : (syById.has(String(id)) ? syById.get(String(id)) : null));
+const syI = n => (n == null ? null : (syByName.has(n) ? syByName.get(n) : null));
+const syMapK = o => { const r = {}; for (const k in (o || {})){ const n = syN(k); if (n != null) r[n] = o[k]; } return r; };
+const syUnK = o => { const r = {}; for (const n in (o || {})){ const i = syI(n); if (i != null) r[i] = o[n]; } return r; };
+function syEmp(x){ if (x == null || x === false || x === '') return true; if (Array.isArray(x)) return x.every(syEmp); if (typeof x === 'object') return Object.values(x).every(syEmp); return false; }
+function syBase(c){ return 'https://firestore.googleapis.com/v1/projects/' + FB_PID + '/databases/(default)/documents/sync/' + encodeURIComponent(c.code); }
+async function syReq(url, opt){
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 20000);
+  try { return await fetch(url + (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(FB_KEY), Object.assign({signal: ctl.signal}, opt || {})); }
+  finally { clearTimeout(t); }
+}
+async function syGet(path, c){ const r = await syReq(syBase(c) + path); if (r.status === 404) return null; if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+async function syPut(path, c, fields){
+  const mask = Object.keys(fields).map(k => 'updateMask.fieldPaths=' + encodeURIComponent(k)).join('&');
+  const body = {fields: {}}; for (const k in fields) body.fields[k] = {stringValue: fields[k]};
+  const r = await syReq(syBase(c) + path + '?' + mask, {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+}
+/* Teile, die abgeglichen werden. Rezepte werden über den Namen zugeordnet, weil die internen Nummern je Gerät verschieden sind. */
+const SY = {
+  plan: {
+    ser: () => JSON.stringify({w: weeks.map(r => r.map(syN)), c: conts, x: Object.fromEntries(Object.entries(extras).map(([k, a]) => [k, a.map(syN).filter(Boolean)])), t: Object.keys(two).filter(k => two[k]).map(syN).filter(Boolean)}),
+    app(v){
+      const o = JSON.parse(v), w = o.w.map(r => r.map(n => (n == null ? null : syI(n))));
+      if (o.w.some((r, i) => r.some((n, j) => n != null && w[i][j] == null))) return false;
+      weeks.forEach((r, i) => r.splice(0, 7, ...(w[i] || new Array(7).fill(null))));
+      conts.forEach((r, i) => r.splice(0, 7, ...Array.from({length: 7}, (_, j) => !!(o.c[i] && o.c[i][j]))));
+      Object.keys(extras).forEach(k => delete extras[k]);
+      for (const k in o.x){ const a = o.x[k].map(syI).filter(x => x != null); if (a.length) extras[k] = a; }
+      Object.keys(two).forEach(k => delete two[k]); o.t.forEach(n => { const i = syI(n); if (i != null) two[i] = true; });
+      savePins(); saveExtras(); saveTwo(); return true;
+    }},
+  eat: {ser: () => JSON.stringify(syMapK(eat)), app(v){ Object.keys(eat).forEach(k => delete eat[k]); Object.assign(eat, syUnK(JSON.parse(v))); saveEat(); return true; }},
+  art: {
+    ser: () => JSON.stringify({a: myArt, o: myOn, d: myDone}),
+    app(v){ const o = JSON.parse(v); myArt = o.a || []; myOn = o.o || []; myDone = o.d || []; saveArt(); saveDone(); return true; }},
+  stars: {ser: () => JSON.stringify(syMapK(stars)), app(v){ Object.keys(stars).forEach(k => delete stars[k]); Object.assign(stars, syUnK(JSON.parse(v))); try { localStorage.setItem('stars', JSON.stringify(stars)); } catch(e){} return true; }},
+  notes: {ser: () => JSON.stringify(syMapK(notes)), app(v){ Object.keys(notes).forEach(k => delete notes[k]); Object.assign(notes, syUnK(JSON.parse(v))); saveNotes(); return true; }},
+  portions: {ser: () => JSON.stringify(syMapK(portions)), app(v){ Object.keys(portions).forEach(k => delete portions[k]); Object.assign(portions, syUnK(JSON.parse(v))); try { localStorage.setItem('portions', JSON.stringify(portions)); } catch(e){} return true; }},
+  kex: {ser: () => JSON.stringify(syMapK(kex)), app(v){ Object.keys(kex).forEach(k => delete kex[k]); Object.assign(kex, syUnK(JSON.parse(v))); saveKex(); return true; }},
+  cats: {
+    ser: () => JSON.stringify({c: cats, m: syMapK(catMap), g: groups, cg: catGroup}),
+    app(v){ const o = JSON.parse(v); cats = o.c || []; groups = o.g || []; catGroup = o.cg || {}; catMap = syUnK(o.m || {}); saveCats(); saveGroups(); return true; }},
+  sw: {
+    ser: () => JSON.stringify(savedW.map(s => Object.assign({}, s, {days: (s.days || []).map(d => Object.assign({}, d, {id: null, x: (d.x || []).map(y => Object.assign({}, y, {id: null}))}))}))),
+    app(v){ savedW = JSON.parse(v).map(s => Object.assign({}, s, {days: (s.days || []).map(d => Object.assign({}, d, {id: syI(d.n), x: (d.x || []).map(y => Object.assign({}, y, {id: syI(y.n)}))}))})); saveSW(); return true; }}
+};
+/* Rezepte: je Rezept ein eigenes Dokument, Vergleich über einen Fingerabdruck */
+const syHC = new WeakMap(), syIS = new WeakMap();
+function syHash(it){
+  let c = syHC.get(it); const key = (it.img || '').length + ':' + (it.photo || '').length;
+  if (!c || c.k !== key){ c = {k: key, v: rzHash(it.img) + '|' + rzHash(it.photo)}; syHC.set(it, c); }
+  return rzHash([it.name, (it.lines || []).join('\u0001'), it.steps || '', JSON.stringify(it.ing || null), it.idea ? 1 : 0, it.pdf ? 1 : 0, it.src || '', it.edited ? 1 : 0, c.v].join('\u0002'));
+}
+function syIsSeed(it){ let s = syIS.get(it); if (s === undefined){ s = seedIdx(it) >= 0; syIS.set(it, s); } return s; }
+const syRid = n => 'r' + rzHash(n).replace(/[^0-9a-z-]/gi, '_') + '_' + n.length;
+const syPick = it => { const o = {}; for (const k in it) if (k !== 'id') o[k] = it[k]; return o; };
+function syRefresh(){
+  try { sortItems(); } catch(e){}
+  try { draw(); } catch(e){}
+  try { renderList(); } catch(e){}
+  try { if (!$('#ar').hidden) renderArt(); } catch(e){}
+  try { drawCats(); } catch(e){}
+  try { if (!$('#wv').hidden) wvRender(); } catch(e){}
+  try { if (!$('#v').hidden) viewerStars(); } catch(e){}
+}
+async function syTick(manual){
+  if (syBusy) return; const c = syCfg(); if (!c || !c.code || !FB_PID) return;
+  if (!items.length && !manual) return;
+  syBusy = true; let again = false;
+  try {
+    const st = await syGet('/state/main', c), f = (st && st.fields) || {};
+    const gs = k => (f[k] && f[k].stringValue != null ? f[k].stringValue : null);
+    let idx = {}; try { idx = JSON.parse(gs('idx') || '{}') || {}; } catch(e){}
+    const last = syLS('sync_last', {}), man = syLS('sync_man', {}), patch = {};
+    let applied = false, idxDirty = false;
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '');
+    /* 1) Rezepte */
+    if ($('#v').hidden && !typing){
+      const loc = new Map(); items.forEach(it => { if (!syIsSeed(it) && it.name && !loc.has(it.name)) loc.set(it.name, it); });
+      let budget = 6;
+      const pushIt = async (n, it, h) => { await syPut('/rec/' + syRid(n), c, {d: JSON.stringify(syPick(it))}); idx[n] = {h, t: Date.now()}; man[n] = h; idxDirty = true; };
+      const pull = async (n, r) => {
+        const d = await syGet('/rec/' + syRid(n), c); if (!d || !d.fields || !d.fields.d) return;
+        const o = JSON.parse(d.fields.d.stringValue), old = loc.get(n);
+        if (old){ const ni = Object.assign({}, o, {id: old.id}); if (db) await tx('readwrite', s => s.put(ni)); items[items.indexOf(old)] = ni; loc.set(n, ni); man[n] = syHash(ni); }
+        else { const ni = Object.assign({}, o); ni.id = db ? await tx('readwrite', s => s.add(ni)) : Date.now() + items.length; items.push(ni); loc.set(n, ni); man[n] = syHash(ni); }
+        applied = true;
+      };
+      for (const [n, it] of [...loc]){
+        const h = syHash(it), r = idx[n];
+        if (!r){ if (budget-- > 0) await pushIt(n, it, h); else again = true; }
+        else if (r.d){
+          if (man[n] === h){ if (db) await tx('readwrite', s => s.delete(it.id)); items.splice(items.indexOf(it), 1); loc.delete(n); delete man[n]; applied = true; }
+          else if (budget-- > 0) await pushIt(n, it, h); else again = true;
+        }
+        else if (r.h === h) man[n] = h;
+        else if (man[n] === h){ if (budget-- > 0) await pull(n, r); else again = true; }
+        else if (budget-- > 0) await pushIt(n, it, h); else again = true;
+      }
+      for (const n of Object.keys(idx)){
+        const r = idx[n]; if (loc.has(n)) continue;
+        if (r.d){ delete man[n]; continue; }
+        if (man[n] !== undefined){ idx[n] = {h: r.h, t: Date.now(), d: true}; delete man[n]; idxDirty = true; }
+        else if (syByName.has(n)){ /* gleichnamiges eingebautes Rezept */ }
+        else if (budget-- > 0) await pull(n, r); else again = true;
+      }
+      if (applied) syMaps();
+    }
+    /* 2) Planung, Listen, Sterne usw. */
+    for (const sec of Object.keys(SY)){
+      const S = SY[sec], L = S.ser(), rv = gs('s_' + sec), rt = gs('t_' + sec), lk = last[sec];
+      if (rv == null){ if (!syEmp(JSON.parse(L))){ const t = syNow(); patch['s_' + sec] = L; patch['t_' + sec] = t; last[sec] = {v: L, t}; } continue; }
+      if (!lk){
+        if (rv === L) last[sec] = {v: L, t: rt};
+        else if (!typing){ let ok = false; try { ok = S.app(rv) !== false; } catch(e){} if (ok){ last[sec] = {v: S.ser(), t: rt}; applied = true; } }
+      } else if (L !== lk.v){ const t = syNow(); patch['s_' + sec] = L; patch['t_' + sec] = t; last[sec] = {v: L, t}; }
+      else if (rt !== lk.t && !typing){ let ok = false; try { ok = S.app(rv) !== false; } catch(e){} if (ok){ last[sec] = {v: S.ser(), t: rt}; applied = true; } }
+    }
+    if (idxDirty) patch.idx = JSON.stringify(idx);
+    if (Object.keys(patch).length) await syPut('/state/main', c, patch);
+    localStorage.setItem('sync_last', JSON.stringify(last)); localStorage.setItem('sync_man', JSON.stringify(man));
+    if (applied) syRefresh();
+    const d = new Date(); syUi('✓ Abgeglichen um ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' Uhr');
+  } catch(e){ syUi('Abgleich gerade nicht möglich (' + (e && e.message ? e.message : e) + '). Es wird später erneut versucht.'); }
+  finally { syBusy = false; }
+  if (again) setTimeout(syTick, 1500);
+}
+function syLater(){ if (!syCfg()) return; clearTimeout(syDeb); syDeb = setTimeout(syTick, 2500); }
+function syStart(){
+  clearInterval(syTimer);
+  const c = syCfg(); const box = $('#sybox');
+  if (box){ $('#sycode').value = c ? c.code : ''; $('#sygo').hidden = !!c; $('#syoff').hidden = !c; $('#synow').hidden = !c; $('#sycode').disabled = !!c; }
+  if (!FB_PID){ syUi('Noch nicht eingerichtet.'); return; }
+  if (!c){ syUi('Nicht verbunden.'); return; }
+  syMaps(); syTimer = setInterval(() => { if (!document.hidden){ syMaps(); syTick(); } }, 10000);
+  setTimeout(() => { syMaps(); syTick(); }, 600);
+}
+$('#sygo').onclick = () => {
+  const code = $('#sycode').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (code.length < 8){ syUi('Der Code braucht mindestens 8 Zeichen (Buchstaben und Zahlen).'); return; }
+  localStorage.setItem('sync', JSON.stringify({code})); localStorage.removeItem('sync_last'); localStorage.removeItem('sync_man'); syStart();
+};
+$('#syoff').onclick = () => { localStorage.removeItem('sync'); localStorage.removeItem('sync_last'); localStorage.removeItem('sync_man'); syStart(); };
+$('#synow').onclick = () => { syUi('Gleiche ab …'); syMaps(); syTick(true); };
+document.addEventListener('visibilitychange', () => { if (!document.hidden){ syMaps(); syTick(); } });
+['pointerup', 'change', 'keyup'].forEach(ev => document.addEventListener(ev, syLater, true));
+setTimeout(syStart, 3500);
 </script>
 </body>
 </html>
